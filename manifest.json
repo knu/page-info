@@ -7,6 +7,10 @@
     "default_popup": "index.html",
     "default_title": "Page Info"
   },
-  "permissions": ["activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "src/worker.ts",
+    "type": "module"
+  },
+  "permissions": ["activeTab", "scripting", "webNavigation", "storage"],
   "host_permissions": ["<all_urls>"]
 }

@@ -1,33 +1,7 @@
 import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
 import ReactDOM from "react-dom/client";
-
-type PageInfo = {
-  url: string;
-  canonicalUrl?: string;
-  title?: string;
-  description?: string;
-  og_title?: string;
-  og_description?: string;
-  og_image?: string;
-};
-
-const obtainPageInfo: () => PageInfo = () => {
-  const getElementAttribute = (selector: string, attribute: string) =>
-    document.querySelector(`${selector}[${attribute}]`)
-      ?.getAttribute(attribute) ?? undefined;
-
-  const result: PageInfo = {
-    url: window.location.href,
-    canonicalUrl: getElementAttribute("link[rel='canonical']", "href"),
-    title: document.title,
-    description: getElementAttribute("meta[name='description']", "content"),
-    og_title: getElementAttribute("meta[property='og:title']", "content"),
-    og_description: getElementAttribute("meta[property='og:description']", "content"),
-    og_image: getElementAttribute("meta[property='og:image']", "content"),
-  };
-
-  return result;
-};
+import { getPageInfo } from "./getPageInfo.ts";
+import type { PageInfo } from "./getPageInfo.ts";
 
 const Popup = () => {
   const [pageInfo, setPageInfo] = useState({} as PageInfo);
@@ -39,7 +13,7 @@ const Popup = () => {
 
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
-          func: obtainPageInfo
+          func: getPageInfo
         })
           .then((results) => {
             for (const { result } of results) {
