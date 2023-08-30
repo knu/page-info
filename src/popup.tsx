@@ -35,26 +35,28 @@ const Popup = () => {
 
   return (
     <div className="App" style={{ width: 480, height: 480 }}>
-      {og_image &&
-        <img
-          src={og_image}
-          width="100%"
-        />
-      }
+      <div className="p-1">
+        {og_image &&
+          <img
+            src={og_image}
+            className="rounded bg-light flex-middle mb-2"
+          />
+        }
 
-      {(og_title ?? title) &&
-        <h1>{og_title ?? title}</h1>
-      }
+        {(og_title ?? title) &&
+          <h1 className="mb-2 text-xl font-bold">{og_title ?? title}</h1>
+        }
 
-      {(og_description ?? description) &&
-        <p>{og_description ?? description}</p>
-      }
+        {(og_description ?? description) &&
+          <p className="text-base">{og_description ?? description}</p>
+        }
 
-      {canonicalUrl &&
-        <p>Canonical URL: {url === canonicalUrl ? "✅" :
-          <>👉 <a href={canonicalUrl} target="_blank" rel="noreferrer">{canonicalUrl}</a></>
-        }</p>
-      }
+        {canonicalUrl &&
+          <p>Canonical URL: {url === canonicalUrl ? "✅" :
+            <>👉 <a href={canonicalUrl} target="_blank" rel="noreferrer">{canonicalUrl}</a></>
+          }</p>
+        }
+      </div>
     </div>
   );
 };
