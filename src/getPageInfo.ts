@@ -9,9 +9,17 @@ export type PageInfo = {
 };
 
 export const getPageInfo: () => PageInfo = () => {
-  const getElementAttribute = (selector: string, attribute: string) =>
-    document.querySelector(`${selector}[${attribute}]`)
-      ?.getAttribute(attribute) ?? undefined;
+  const getElementAttribute = (selector: string, attribute: string) => {
+    const value = document
+      .querySelector(`${selector}[${attribute}]`)
+      ?.getAttribute(attribute);
+
+    if (!value) return undefined;
+
+    const div = document.createElement('div');
+    div.innerHTML = value;
+    return div.textContent!;
+  };
 
   const result: PageInfo = {
     url: window.location.href,
