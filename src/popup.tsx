@@ -158,8 +158,8 @@ const PageInfoPopup = () => {
   });
 
   return (
-    <div className="App" style={{ width: 480, height: 480 }}>
-      <div className="p-3 overflow-auto">
+    <div id="container" className="overflow-auto p-3">
+      <div className="pb-8">
         {imgSrc ? (
           isError ? (
             <img src={"foo"} title="Image Not Found" className="rounded bg-light flex-middle og-image error" />
@@ -191,9 +191,8 @@ const PageInfoPopup = () => {
             <div className="dummy-line" />
           </div>
         )}
-
-        {url && <UrlButton {...{ url, canonicalUrl }} />}
       </div>
+      {url && <UrlButton {...{ url, canonicalUrl }} />}
     </div>
   );
 };

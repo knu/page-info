@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+#container {
+  width: 400px;
+  height: 360px;
+}
+
 .placeholder {
   overflow: hidden;
   background: #000;
@@ -17,22 +22,27 @@
   background-size: 960px;
 }
 
+.og-image {
+  border: 1px solid #eee;
+  max-height: 210px;
+}
+
 .placeholder.og-image {
-  height: 252px;
+  height: 210px;
 }
 
 .og-image.error {
-  height: 252px;
+  height: 210px;
   background: #ddd;
-  line-height: 252px;
+  line-height: 210px;
   text-align: center;
   font-size: 20px;
 }
 
 .no-og-image {
-  height: 252px;
+  height: 210px;
   background: #eee;
-  line-height: 252px;
+  line-height: 210px;
   text-align: center;
   font-size: 20px;
 }
@@ -90,9 +100,9 @@
 
 @keyframes placeholderAnimation {
   0% {
-    background-position: -480px 0;
+    background-position: -400px 0;
   }
   100% {
-    background-position: 480px 0;
+    background-position: 400px 0;
   }
 }
