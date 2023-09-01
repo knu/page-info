@@ -22,11 +22,6 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
     setIsOpen(true);
     setIsCopied(false);
     clearTimeout(timer);
-    setTimer(
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 1500)
-    );
   };
 
   const handleCopy = () => {
@@ -93,6 +88,7 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
             title={pageUrl}
             onClick={urlClickHandler(pageUrl)}
             onMouseEnter={handleHover}
+            onMouseLeave={handleClose}
           >
             {pageUrl}
           </a>
