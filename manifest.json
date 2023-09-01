@@ -11,6 +11,12 @@
     "service_worker": "src/worker.ts",
     "type": "module"
   },
-  "permissions": ["activeTab", "scripting", "webNavigation", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "webNavigation",
+    "clipboardWrite",
+    "storage"
+  ],
   "host_permissions": ["<all_urls>"]
 }

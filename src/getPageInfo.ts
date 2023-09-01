@@ -1,11 +1,11 @@
 export type PageInfo = {
   url: string;
-  canonicalUrl?: string;
-  title?: string;
-  description?: string;
-  og_title?: string;
-  og_description?: string;
-  og_image?: string;
+  canonicalUrl?: string | null;
+  title?: string | null;
+  description?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
 };
 
 export const getPageInfo: () => PageInfo = () => {
@@ -14,7 +14,7 @@ export const getPageInfo: () => PageInfo = () => {
       .querySelector(`${selector}[${attribute}]`)
       ?.getAttribute(attribute);
 
-    if (!value) return undefined;
+    if (!value) return null;
 
     const div = document.createElement('div');
     div.innerHTML = value;
