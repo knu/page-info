@@ -10,9 +10,12 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
     if (state) return state;
   }
 
+  const { url } = await chrome.tabs.get(tabId);
+  if (!url || !/^https?:\/\//.test(url)) return "unknown";
+
   const [
     {
-      result: { url, canonicalUrl },
+      result: { canonicalUrl },
     },
   ] = await chrome.scripting.executeScript({
     target: { tabId },
