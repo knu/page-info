@@ -13,23 +13,31 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
   const { url } = await chrome.tabs.get(tabId);
   if (!url || !/^https?:\/\//.test(url)) return "unknown";
 
-  const [
-    {
-      result: { canonicalUrl },
-    },
-  ] = await chrome.scripting.executeScript({
-    target: { tabId },
-    func: getPageInfo,
-  });
+  try {
+    const [
+      {
+        result: { canonicalUrl },
+      },
+    ] = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: getPageInfo,
+    });
 
-  const state =
-    url === canonicalUrl
-      ? "canonical"
-      : canonicalUrl
-        ? "noncanonical"
-        : "unknown";
-  canonicalStates.set(tabId, state);
-  return state;
+    const state =
+      url === canonicalUrl
+        ? "canonical"
+        : canonicalUrl
+          ? "noncanonical"
+          : "unknown";
+    canonicalStates.set(tabId, state);
+    return state;
+  } catch (e) {
+    if (/cannot be scripted/.test(`${e}`)) {
+      return "unknown";
+    } else {
+      throw e;
+    }
+  }
 };
 
 const clearCanonicalState = (tabId: number) => {

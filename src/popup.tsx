@@ -116,16 +116,24 @@ const PageInfoPopup = () => {
         return;
       }
 
-      chrome.scripting
-        .executeScript({
-          target: { tabId: tab.id },
-          func: getPageInfo,
-        })
-        .then((results) => {
-          for (const { result } of results) {
-            setPageInfo(result);
-          }
-        });
+      try {
+        chrome.scripting
+          .executeScript({
+            target: { tabId: tab.id },
+            func: getPageInfo,
+          })
+          .then((results) => {
+            for (const { result } of results) {
+              setPageInfo(result);
+            }
+          });
+      } catch (e) {
+        if (/cannot be scripted/.test(`${e}`)) {
+          window.close();
+        } else {
+          throw e;
+        }
+      }
     });
   });
 
