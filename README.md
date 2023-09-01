@@ -1,27 +1,21 @@
-# React + TypeScript + Vite
+# Page Info
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a Chrome extension that checks for the canonical URL and some basic information about the web page on the current tab.
 
-Currently, two official plugins are available:
+When a web page is loaded, the extension checks if the URL is canonical and changes its icon face depending on the canonical state.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Clicking the extension icon shows the following pieces of information:
 
-## Expanding the ESLint configuration
+- the image (og:image)
+- the page title (og:title or &lt;title&gt;)
+- the canonical URL you can follow or copy
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+No SEO hypes, no access to any external server, just a simple information viewer.
 
-- Configure the top-level `parserOptions` property like this:
+## Author
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+Copyright (c) 2023 Akinori MUSHA.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Licensed under the 2-clause BSD license.  See `LICENSE.txt` for details.
+
+Visit the [GitHub Repository](https://github.com/knu/page-info) for the latest information.
