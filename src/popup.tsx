@@ -44,7 +44,7 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
 
       if (!url) return;
 
-      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+      chrome.tabs.query({ url: ["https://*/*", "http://*/*"], active: true, currentWindow: true }).then(([tab]) => {
         if (!tab?.id) return;
 
         if (isCopiable) {
@@ -110,8 +110,11 @@ const PageInfoPopup = () => {
   const [isError, setIsError] = useState<boolean>(false);
 
   useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-      if (!tab?.id) return;
+    chrome.tabs.query({ url: ["https://*/*", "http://*/*"], active: true, currentWindow: true }).then(([tab]) => {
+      if (!tab?.id) {
+        window.close();
+        return;
+      }
 
       chrome.scripting
         .executeScript({
