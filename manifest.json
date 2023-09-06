@@ -1,7 +1,7 @@
 {
   "name": "Page Info",
   "description": "Show the page info and the canonical URL",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
@@ -17,12 +17,6 @@
     "service_worker": "src/worker.ts",
     "type": "module"
   },
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "webNavigation",
-    "clipboardWrite",
-    "storage"
-  ],
+  "permissions": ["activeTab", "scripting", "webNavigation", "clipboardWrite"],
   "host_permissions": ["<all_urls>"]
 }
