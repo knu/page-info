@@ -168,22 +168,8 @@ const PageInfoPopup = () => {
   return (
     <div id="container" className="overflow-auto p-3">
       <div className="pb-8">
-        {imgSrc ? (
-          isError ? (
-            <img src={"foo"} title="Image Not Found" className="rounded bg-light flex-middle og-image error" />
-          ) : (
-            <img src={imgSrc} className="rounded bg-light flex-middle og-image" />
-          )
-        ) : isLoading ? (
-          <div className="rounded bl-light flex-middle placeholder og-image" />
-        ) : (
-          <div className="rounded bl-light flex-middle no-og-image">
-            No Image
-          </div>
-        )}
-
         {og_title ?? title ? (
-          <div className="mt-2 px-2 og-text">
+          <div className="px-2 og-text">
             <h1 className="text-xl font-bold">{og_title ?? title}</h1>
 
             {(og_description ?? description) && (
@@ -191,12 +177,26 @@ const PageInfoPopup = () => {
             )}
           </div>
         ) : (
-          <div className="mt-2 px-2 placeholder og-text">
+          <div className="px-2 placeholder og-text">
             <div className="dummy-line" />
             <div className="dummy-line" />
             <div className="dummy-line" />
             <div className="dummy-line" />
             <div className="dummy-line" />
+          </div>
+        )}
+
+        {imgSrc ? (
+          isError ? (
+            <img src={imgSrc} alt="Image Not Found" title="Image Not Found" className="mt-2 rounded bg-light flex-middle og-image error" />
+          ) : (
+            <img src={imgSrc} className="mt-2 rounded bg-light flex-middle og-image" />
+          )
+        ) : isLoading ? (
+          <div className="mt-2 rounded bl-light flex-middle placeholder og-image" />
+        ) : (
+          <div className="mt-2 rounded bl-light flex-middle no-og-image">
+            No Image
           </div>
         )}
       </div>
