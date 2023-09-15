@@ -142,6 +142,8 @@ const PageInfoPopup = () => {
     canonicalUrl,
     title,
     description,
+    icon,
+    og_site_name,
     og_title,
     og_description,
     og_image,
@@ -168,6 +170,13 @@ const PageInfoPopup = () => {
   return (
     <div id="container" className="overflow-auto p-3">
       <div className="pb-8">
+        {og_site_name && (
+          <div className="mb-2 px-2 og-site-name">
+            {icon && <img src={icon} title={og_site_name} className="og-icon" />}
+            <p className="text-base font-bold">{og_site_name}</p>
+          </div>
+        )}
+
         {og_title ?? title ? (
           <div className="px-2 og-text">
             <h1 className="text-xl font-bold">{og_title ?? title}</h1>
