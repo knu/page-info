@@ -31,21 +31,27 @@ export const getPageInfo: () => PageInfo = () => {
     return div.textContent!;
   };
 
+  const url = window.location.href;
+  const icon = getElementAttribute(
+    "link[rel='icon']",
+    "href",
+    (elem) =>
+      elem
+        .getAttribute("sizes")
+        ?.split(/\D+/)
+        .map((s) => parseInt(s))
+        .filter((n) => !isNaN(n))
+        .sort()
+        .pop() ?? 0,
+  );
+  const iconURL = icon && new URL(icon, url).toString();
+  const ogImage = getElementAttribute("meta[property='og:image']", "content");
+  const imageURL = ogImage && new URL(ogImage, url).toString();
+
   const result: PageInfo = {
-    url: window.location.href,
+    url,
     canonicalUrl: getElementAttribute("link[rel='canonical']", "href"),
-    icon: getElementAttribute(
-      "link[rel='icon']",
-      "href",
-      (elem) =>
-        elem
-          .getAttribute("sizes")
-          ?.split(/\D+/)
-          .map((s) => parseInt(s))
-          .filter((n) => !isNaN(n))
-          .sort()
-          .pop() ?? 0,
-    ),
+    icon: iconURL,
     title: document.title,
     description: getElementAttribute("meta[name='description']", "content"),
     og_title: getElementAttribute("meta[property='og:title']", "content"),
@@ -57,7 +63,7 @@ export const getPageInfo: () => PageInfo = () => {
       "meta[property='og:description']",
       "content",
     ),
-    og_image: getElementAttribute("meta[property='og:image']", "content"),
+    og_image: imageURL,
   };
 
   return result;
