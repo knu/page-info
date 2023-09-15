@@ -1,7 +1,7 @@
 {
   "name": "Page Info",
   "description": "Show the page info and the canonical URL",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
