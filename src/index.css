@@ -38,10 +38,10 @@
 .og-image {
   border: 1px solid #eee;
   max-height: 210px;
-}
 
-.placeholder.og-image {
-  height: 210px;
+  &.placeholder {
+    height: 210px;
+  }
 }
 
 .og-image.error {
