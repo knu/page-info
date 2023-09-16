@@ -24,11 +24,7 @@ export const getPageInfo: () => PageInfo = () => {
         .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))[0]?.[1]
       : document.querySelector(aSelector)?.getAttribute(attribute);
 
-    if (!value) return null;
-
-    const div = document.createElement("div");
-    div.innerHTML = value;
-    return div.textContent!;
+    return value || null;
   };
 
   const url = window.location.href;
