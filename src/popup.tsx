@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "semantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
+import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
 
@@ -105,9 +106,6 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
 
 const PageInfoPopup = () => {
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
-  const [imgSrc, setImgSrc] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
 
   useEffect(() => {
     chrome.tabs.query({ url: ["https://*/*", "http://*/*"], active: true, currentWindow: true }).then(([tab]) => {
@@ -149,30 +147,26 @@ const PageInfoPopup = () => {
     og_image,
   } = pageInfo ?? {};
 
-  useEffect(() => {
-    if (og_image) {
-      const img = new Image();
-      img.src = og_image;
-      img.onload = () => {
-        setIsLoading(false);
-        setImgSrc(og_image);
-      };
-      img.onerror = () => {
-        setIsLoading(false);
-        setIsError(true);
-        setImgSrc(og_image);
-      };
-    } else if (og_image === null) {
-      setIsLoading(false);
-    }
-  });
-
   return (
     <div id="container" className="overflow-auto p-3">
       <div className="pb-8">
         {og_site_name && (
           <div className="mb-2 px-2 og-site-name">
-            {icon && <img src={icon} title={og_site_name} className="og-icon" />}
+            {icon && (
+              <ImageLoader
+                src={icon}
+                title={og_site_name}
+                className="og-icon"
+                errorAttributes={{
+                  alt: "Image Not Found",
+                  title: "Image Not Found",
+                  className: "og-icon error",
+                }}
+                placeholderContent={
+                  <div className="og-icon placeholder" />
+                }
+              />
+            )}
             <p className="text-base font-bold">{og_site_name}</p>
           </div>
         )}
@@ -195,14 +189,19 @@ const PageInfoPopup = () => {
           </div>
         )}
 
-        {imgSrc ? (
-          isError ? (
-            <img src={imgSrc} alt="Image Not Found" title="Image Not Found" className="mt-2 rounded bg-light flex-middle og-image error" />
-          ) : (
-            <img src={imgSrc} className="mt-2 rounded bg-light flex-middle og-image" />
-          )
-        ) : isLoading ? (
-          <div className="mt-2 rounded bl-light flex-middle placeholder og-image" />
+        {og_image ? (
+          <ImageLoader
+            src={og_image}
+            className="mt-2 rounded bg-light flex-middle og-image"
+            errorAttributes={{
+              alt: "Image Not Found",
+              title: "Image Not Found",
+              className: "mt-2 rounded bg-light flex-middle og-image error",
+            }}
+            placeholderContent={
+              <div className="mt-2 rounded bl-light flex-middle og-image placeholder" />
+            }
+          />
         ) : (
           <div className="mt-2 rounded bl-light flex-middle no-og-image">
             No Image
