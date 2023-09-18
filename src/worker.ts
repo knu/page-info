@@ -39,8 +39,8 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
       url === canonicalUrl
         ? "canonical"
         : canonicalUrl
-          ? "noncanonical"
-          : "unknown";
+        ? "noncanonical"
+        : "unknown";
     canonicalStates.set(tabId, state);
     return state;
   } catch (e) {
@@ -112,4 +112,4 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 });
 
-export { };
+export {};

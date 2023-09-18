@@ -31,8 +31,8 @@ export const getPageInfo: () => PageInfo = () => {
 
     const value = maxBy
       ? Array.from(document.querySelectorAll(aSelector))
-        .map((element) => [maxBy(element), element.getAttribute(attribute)])
-        .sort(([a], [b]) => compare(a, b))[0]?.[1]
+          .map((element) => [maxBy(element), element.getAttribute(attribute)])
+          .sort(([a], [b]) => compare(a, b))[0]?.[1]
       : document.querySelector(aSelector)?.getAttribute(attribute);
 
     return value || null;

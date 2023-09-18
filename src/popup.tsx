@@ -6,7 +6,7 @@ import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
 
-const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
+const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
   const isCopiable = url === pageUrl;
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +34,7 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
         setTimeout(() => {
           setIsOpen(false);
           setIsCopied(false);
-        }, 750)
+        }, 750),
       );
     });
   };
@@ -45,21 +45,27 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
 
       if (!url) return;
 
-      chrome.tabs.query({ url: ["https://*/*", "http://*/*"], active: true, currentWindow: true }).then(([tab]) => {
-        if (!tab?.id) return;
+      chrome.tabs
+        .query({
+          url: ["https://*/*", "http://*/*"],
+          active: true,
+          currentWindow: true,
+        })
+        .then(([tab]) => {
+          if (!tab?.id) return;
 
-        if (isCopiable) {
-          handleCopy();
-        } else {
-          chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: ({ url }) => {
-              window.location.href = url;
-            },
-            args: [{ url }],
-          });
-        }
-      });
+          if (isCopiable) {
+            handleCopy();
+          } else {
+            chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: ({ url }) => {
+                window.location.href = url;
+              },
+              args: [{ url }],
+            });
+          }
+        });
     };
 
   const emoji =
@@ -69,10 +75,11 @@ const UrlButton = ({ url, canonicalUrl }: PageInfo) => {
       <span>👉</span>
     ) : null;
 
-  const popupContent =
-    isCopied ? "Copied!" :
-      isCopiable ? "Click to copy the URL" :
-        "Click to visit the canonical URL";
+  const popupContent = isCopied
+    ? "Copied!"
+    : isCopiable
+    ? "Click to copy the URL"
+    : "Click to visit the canonical URL";
 
   return (
     <div className="fixed z-50 bottom-1 left-1 p-1 border-2 bg-white rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
@@ -108,31 +115,37 @@ const PageInfoPopup = () => {
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
 
   useEffect(() => {
-    chrome.tabs.query({ url: ["https://*/*", "http://*/*"], active: true, currentWindow: true }).then(([tab]) => {
-      if (!tab?.id) {
-        window.close();
-        return;
-      }
-
-      try {
-        chrome.scripting
-          .executeScript({
-            target: { tabId: tab.id },
-            func: getPageInfo,
-          })
-          .then((results) => {
-            for (const { result } of results) {
-              setPageInfo(result);
-            }
-          });
-      } catch (e) {
-        if (/cannot be scripted/.test(`${e}`)) {
+    chrome.tabs
+      .query({
+        url: ["https://*/*", "http://*/*"],
+        active: true,
+        currentWindow: true,
+      })
+      .then(([tab]) => {
+        if (!tab?.id) {
           window.close();
-        } else {
-          throw e;
+          return;
         }
-      }
-    });
+
+        try {
+          chrome.scripting
+            .executeScript({
+              target: { tabId: tab.id },
+              func: getPageInfo,
+            })
+            .then((results) => {
+              for (const { result } of results) {
+                setPageInfo(result);
+              }
+            });
+        } catch (e) {
+          if (/cannot be scripted/.test(`${e}`)) {
+            window.close();
+          } else {
+            throw e;
+          }
+        }
+      });
   });
 
   const {
@@ -162,9 +175,7 @@ const PageInfoPopup = () => {
                   title: "Image Not Found",
                   className: "og-icon error",
                 }}
-                placeholderContent={
-                  <div className="og-icon placeholder" />
-                }
+                placeholderContent={<div className="og-icon placeholder" />}
               />
             )}
             <p className="text-base font-bold">{og_site_name}</p>
@@ -208,7 +219,7 @@ const PageInfoPopup = () => {
           </div>
         )}
       </div>
-      {url && <UrlButton {...{ url, canonicalUrl }} />}
+      {url && <URLButton {...{ url, canonicalUrl }} />}
     </div>
   );
 };

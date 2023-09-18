@@ -7,7 +7,12 @@ type Props = {
   errorAttributes?: ImgHTMLAttributes<HTMLImageElement>;
 } & ImgHTMLAttributes<HTMLImageElement>;
 
-export const ImageLoader = ({ src, placeholderContent, errorAttributes, ...attributes }: Props) => {
+export const ImageLoader = ({
+  src,
+  placeholderContent,
+  errorAttributes,
+  ...attributes
+}: Props) => {
   const [imgSrc, setImgSrc] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
@@ -30,10 +35,9 @@ export const ImageLoader = ({ src, placeholderContent, errorAttributes, ...attri
     }
   });
 
-  return (
-    imgSrc ? (
-      <img src={imgSrc} {...(isError ? errorAttributes : attributes)} />
-    ) : isLoading ? placeholderContent : null
-  );
+  return imgSrc ? (
+    <img src={imgSrc} {...(isError ? errorAttributes : attributes)} />
+  ) : isLoading ? (
+    placeholderContent
+  ) : null;
 };
-
