@@ -70,9 +70,9 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
 
   const emoji =
     url === canonicalUrl ? (
-      <span>✅ </span>
+      <i className="canonical-icon check square icon" />
     ) : canonicalUrl ? (
-      <span>👉</span>
+      <i className="noncanonical-icon external square alternate icon" />
     ) : null;
 
   const popupContent = isCopied

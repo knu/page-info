@@ -119,3 +119,11 @@
     background-position: 400px 0;
   }
 }
+
+.canonical-icon {
+  color: #55dd00;
+}
+
+.noncanonical-icon {
+  color: #ff8000;
+}
