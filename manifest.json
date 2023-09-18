@@ -17,6 +17,16 @@
     "service_worker": "src/worker.ts",
     "type": "module"
   },
-  "permissions": ["activeTab", "scripting", "webNavigation", "clipboardWrite"],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "webNavigation",
+    "clipboardWrite",
+    "storage"
+  ],
   "host_permissions": ["<all_urls>"]
 }

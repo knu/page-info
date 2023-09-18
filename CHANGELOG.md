@@ -1,6 +1,10 @@
+## 0.3.0
+
+- Implement a Share URL feature and add an options page for that.
+
 ## 0.2.1
 
-- Entend support for icons; `shortcut icon` and `apple-touch-icon`.
+- Extend support for icons; `shortcut icon` and `apple-touch-icon`.
 - Avoid HTML over-unescaping.
 
 ## 0.2.0

@@ -5,6 +5,8 @@ import { Popup } from "semantic-ui-react";
 import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
+import { parseTemplate } from "url-template";
+import type { Template } from "url-template";
 
 const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
@@ -111,6 +113,61 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   );
 };
 
+type ShareProps = {
+  url: string;
+  title: string;
+};
+
+const ShareURLButton = ({ url, title }: ShareProps) => {
+  const [shareIcon, setShareIcon] = useState<string | null>(null);
+  const [shareURLTemplate, setShareURLTemplate] = useState<Template | null>(
+    null,
+  );
+
+  useEffect(() => {
+    chrome.storage.sync.get(
+      {
+        shareIcon: null,
+        shareURLTemplate: null,
+      },
+      ({ shareIcon, shareURLTemplate }) => {
+        setShareIcon(shareIcon);
+        setShareURLTemplate(parseTemplate(shareURLTemplate));
+      },
+    );
+  }, []);
+
+  if (shareIcon === null || shareURLTemplate === null) return null;
+
+  const handleClick = () => {
+    const width = 450;
+    const height = 600;
+
+    window.open(
+      shareURLTemplate.expand({ url, title }),
+      "_blank",
+      [
+        `width=${width}`,
+        `height=${height}`,
+        "resizable=yes",
+        "scrollbars=yes",
+        "status=false",
+        "location=false",
+        "toolbar=false",
+      ].join(","),
+    );
+  };
+
+  return (
+    <button
+      className="fixed z-50 top-1 right-1 p-1 border-2 bg-white rounded"
+      onClick={handleClick}
+    >
+      <i className={`share-icon ${shareIcon} icon`} />
+    </button>
+  );
+};
+
 const PageInfoPopup = () => {
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
 
@@ -160,11 +217,18 @@ const PageInfoPopup = () => {
     og_image,
   } = pageInfo ?? {};
 
+  const shareURL = canonicalUrl ?? url;
+  const shareTitle = og_title ?? title;
+
   return (
     <div id="container" className="overflow-auto p-3">
+      {shareURL && shareTitle && (
+        <ShareURLButton url={shareURL} title={shareTitle} />
+      )}
+
       <div className="pb-8">
         {og_site_name && (
-          <div className="mb-2 px-2 og-site-name">
+          <div className="mb-2 px-2 pr-8 og-site-name">
             {icon && (
               <ImageLoader
                 src={icon}
@@ -183,7 +247,7 @@ const PageInfoPopup = () => {
         )}
 
         {og_title ?? title ? (
-          <div className="px-2 og-text">
+          <div className="px-2 pr-8 og-text">
             <h1 className="text-xl font-bold">{og_title ?? title}</h1>
 
             {(og_description ?? description) && (
