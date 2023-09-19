@@ -170,6 +170,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
 const PageInfoPopup = () => {
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
+  const [pageError, setPageError] = useState<string | undefined>();
 
   useEffect(() => {
     chrome.tabs
@@ -184,24 +185,27 @@ const PageInfoPopup = () => {
           return;
         }
 
-        try {
-          chrome.scripting
-            .executeScript({
-              target: { tabId: tab.id },
-              func: getPageInfo,
-            })
-            .then((results) => {
-              for (const { result } of results) {
-                setPageInfo(result);
-              }
-            });
-        } catch (e) {
-          if (/cannot be scripted/.test(`${e}`)) {
-            window.close();
-          } else {
-            throw e;
-          }
-        }
+        chrome.scripting
+          .executeScript({
+            target: { tabId: tab.id },
+            func: getPageInfo,
+          })
+          .then((results) => {
+            for (const { result } of results) {
+              setPageInfo(result);
+            }
+          })
+          .catch((e) => {
+            const message = `${e}`;
+            const { url, title, favIconUrl: icon } = tab;
+
+            if (url !== undefined) {
+              setPageInfo({ url, title, icon });
+              setPageError(message);
+            } else {
+              window.close();
+            }
+          });
       });
   }, []);
 
@@ -264,7 +268,15 @@ const PageInfoPopup = () => {
           </div>
         )}
 
-        {og_image ? (
+        {pageError ? (
+          <div className="mt-2 p-4 rounded bg-amber-100 flex-middle error">
+            <p className="space-y-2">
+              The page information cannot be inspected because of the following
+              error:
+            </p>
+            <p className="space-y-2 mx-4 text-red-600">{pageError}</p>
+          </div>
+        ) : og_image ? (
           <ImageLoader
             src={og_image}
             className="mt-2 rounded bg-light flex-middle og-image"
