@@ -274,11 +274,11 @@ const PageInfoPopup = () => {
               className: "mt-2 rounded bg-light flex-middle og-image error",
             }}
             placeholderContent={
-              <div className="mt-2 rounded bl-light flex-middle og-image placeholder" />
+              <div className="mt-2 rounded bg-light flex-middle og-image placeholder" />
             }
           />
         ) : (
-          <div className="mt-2 rounded bl-light flex-middle no-og-image">
+          <div className="mt-2 rounded bg-light flex-middle no-og-image">
             No Image
           </div>
         )}
