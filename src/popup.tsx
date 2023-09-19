@@ -161,6 +161,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   return (
     <button
       className="fixed z-50 top-1 right-1 p-1 border-2 bg-white rounded"
+      title="Share the page"
       onClick={handleClick}
     >
       <i className={`share-icon ${shareIcon} icon`} />
