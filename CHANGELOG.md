@@ -1,3 +1,10 @@
+## 0.3.1
+
+- Fix error handling and show the URL and title when run in Chrome extension gallery.
+- Fix a performance bug in the popup window.
+- Improve Options UI.
+- Set the tooltip of the share button.
+
 ## 0.3.0
 
 - Implement a Share URL feature and add an options page for that.
