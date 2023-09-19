@@ -21,7 +21,11 @@ const PageInfoOptions = () => {
   const handleChangeShareURLTemplate = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setShareURLTemplate(event.target.value || null);
+    const newShareURLTemplate = event.target.value || null
+    if (newShareURLTemplate !== null && shareIcon === null) {
+      setShareIcon("bookmark");
+    }
+    setShareURLTemplate(newShareURLTemplate);
   };
 
   const handleSave = () => {
@@ -75,7 +79,7 @@ const PageInfoOptions = () => {
                   {value ? (
                     <i className={`share-icon ${value} icon`} />
                   ) : (
-                    "None"
+                    "Disabled"
                   )}
                 </label>
               ),
@@ -94,7 +98,10 @@ const PageInfoOptions = () => {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
                 const value = event.target.value;
-                if (value) setShareURLTemplate(value);
+                if (value) {
+                  if (shareIcon === null) setShareIcon("bookmark");
+                  setShareURLTemplate(value);
+                }
               }}
             >
               <option value="" selected>
