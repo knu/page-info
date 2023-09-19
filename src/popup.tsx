@@ -80,8 +80,8 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const popupContent = isCopied
     ? "Copied!"
     : isCopiable
-    ? "Click to copy the URL"
-    : "Click to visit the canonical URL";
+      ? "Click to copy the URL"
+      : "Click to visit the canonical URL";
 
   return (
     <div className="fixed z-50 bottom-1 left-1 p-1 border-2 bg-white rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
