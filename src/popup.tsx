@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
+import type { ReactNode } from "react";
 import "semantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import { ImageLoader } from "./ImageLoader.tsx";
@@ -84,7 +85,7 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
       : "Click to visit the canonical URL";
 
   return (
-    <div className="fixed z-50 bottom-1 left-1 p-1 border-2 bg-white rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
+    <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-100 dark:border-gray-600 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
@@ -94,7 +95,7 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
             href={pageUrl}
             target="_blank"
             rel="noreferrer"
-            className="overflow-clip"
+            className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
             title={pageUrl}
             onClick={urlClickHandler(pageUrl)}
             onMouseEnter={handleHover}
@@ -160,11 +161,11 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
   return (
     <button
-      className="fixed z-50 top-1 right-1 p-1 border-2 bg-white rounded"
+      className="fixed z-50 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
       title="Share the page"
       onClick={handleClick}
     >
-      <i className={`share-icon ${shareIcon} icon`} />
+      <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
     </button>
   );
 };
@@ -184,7 +185,7 @@ const SiteSummary = ({
 }: SiteSummaryProps) => (
   <>
     {siteName && (
-      <div className="mb-2 px-2 pr-8 og-site-name">
+      <div className="mb-2 px-2 og-site-name">
         {siteIcon && (
           <ImageLoader
             src={siteIcon}
@@ -203,7 +204,7 @@ const SiteSummary = ({
     )}
 
     {title ? (
-      <div className="px-2 pr-8 og-text">
+      <div className="px-2 og-text">
         <h1 className="text-xl font-bold">{title}</h1>
 
         {description && <p className="mt-1 text-base">{description}</p>}
@@ -222,10 +223,16 @@ const SiteSummary = ({
 
 type SiteImageProps = {
   image: string | null | undefined;
+  alt: string | null | undefined;
   pageError: string | undefined;
 };
 
-const SiteImage = ({ image, pageError }: SiteImageProps) =>
+const ActiveTabClasses =
+  "text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 border-blue-600 dark:border-blue-500";
+const InactiveTabClasses =
+  "text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300";
+
+const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
   pageError ? (
     <div className="mt-2 p-4 rounded bg-amber-100 flex-middle error">
       <p className="space-y-2">
@@ -240,6 +247,7 @@ const SiteImage = ({ image, pageError }: SiteImageProps) =>
   ) : (
     <ImageLoader
       src={image}
+      alt={alt ?? undefined}
       className="mt-2 rounded bg-light flex-middle og-image"
       errorAttributes={{
         alt: "Image Not Found",
@@ -257,6 +265,13 @@ const PageInfoPopup = () => {
   const [pageError, setPageError] = useState<string | undefined>();
 
   useEffect(() => {
+    document.body.classList.add(
+      "text-black",
+      "dark:text-white",
+      "bg-white",
+      "dark:bg-gray-800",
+    );
+
     chrome.tabs
       .query({
         url: ["https://*/*", "http://*/*"],
@@ -293,34 +308,110 @@ const PageInfoPopup = () => {
       });
   }, []);
 
-  const {
-    url,
-    canonicalUrl,
-    title,
-    description,
-    icon,
-    og_site_name,
-    og_title,
-    og_description,
-    og_image,
-  } = pageInfo ?? {};
+  const { url, canonicalUrl, title, description, icon, og, twitter } =
+    pageInfo ?? {};
 
   const shareURL = canonicalUrl ?? url;
-  const shareTitle = og_title ?? title;
+  const shareTitle = og?.title ?? title;
+
+  type Panel = {
+    id: string;
+    name: string;
+    render: () => ReactNode;
+  };
+
+  const panels: Panel[] = [
+    {
+      id: "og",
+      name: "OGP",
+      render: () => (
+        <div>
+          <SiteSummary
+            siteName={og?.siteName}
+            siteIcon={icon}
+            title={og?.title ?? title}
+            description={og?.description ?? description}
+          />
+          <SiteImage
+            image={og?.image}
+            alt={og?.imageAlt}
+            pageError={pageError}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  if (twitter !== undefined) {
+    panels.push({
+      id: "twitter",
+      name: "Twitter",
+      render: () => (
+        <div>
+          <SiteSummary
+            siteName={og?.siteName}
+            siteIcon={icon}
+            title={twitter?.title ?? og?.title ?? title}
+            description={twitter?.description ?? og?.description ?? description}
+          />
+          <SiteImage
+            image={twitter?.image ?? og?.image}
+            alt={twitter?.imageAlt ?? og?.imageAlt}
+            pageError={pageError}
+          />
+        </div>
+      ),
+    });
+  }
+
+  const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
+  const showTabs = panels.length > 1;
 
   return (
-    <div id="container" className="overflow-auto p-3">
+    <div id="container" className="p-3">
       {shareURL && shareTitle && (
         <ShareURLButton url={shareURL} title={shareTitle} />
       )}
-      <div className="pb-8">
-        <SiteSummary
-          siteName={og_site_name}
-          siteIcon={icon}
-          title={og_title ?? title}
-          description={og_description ?? description}
-        />
-        <SiteImage image={og_image} pageError={pageError} />
+      {showTabs && (
+        <div className="mb-2 border-b border-gray-200 dark:border-gray-700 pr-8">
+          <ul
+            className="flex flex-wrap -mb-px text-sm text-center"
+            role="tablist"
+          >
+            {panels.map(({ id, name }) => (
+              <li className="space-x-2" role="presentation">
+                <button
+                  className={`inline-block px-4 py-1 border-b-2 font-sans ${id === selectedPanelID
+                      ? ActiveTabClasses
+                      : InactiveTabClasses
+                    }`}
+                  type="button"
+                  role="tab"
+                  aria-controls={id}
+                  aria-selected={id === selectedPanelID ? "true" : "false"}
+                  onClick={() => setSelectedPanelID(id)}
+                >
+                  {name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div
+        id="tab-content"
+        className={`overflow-auto pb-10 ${showTabs ? "" : "pr-8"}`}
+      >
+        {panels.map(({ id, render }) => (
+          <div
+            className={id !== selectedPanelID ? "hidden" : ""}
+            id={id}
+            role="tabpanel"
+            aria-labelledby={`${id}-tab`}
+          >
+            {render()}
+          </div>
+        ))}
       </div>
       {url && <URLButton {...{ url, canonicalUrl }} />}
     </div>

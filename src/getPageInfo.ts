@@ -1,13 +1,26 @@
+type PageOgInfo = {
+  siteName?: string | null;
+  title?: string | null;
+  description?: string | null;
+  image?: string | null;
+  imageAlt?: string | null;
+};
+
+type PageTwitterInfo = {
+  title?: string | null;
+  description?: string | null;
+  image?: string | null;
+  imageAlt?: string | null;
+};
+
 export type PageInfo = {
   url: string;
   canonicalUrl?: string | null;
   title?: string | null;
   description?: string | null;
   icon?: string | null;
-  og_site_name?: string | null;
-  og_title?: string | null;
-  og_description?: string | null;
-  og_image?: string | null;
+  og?: PageOgInfo;
+  twitter?: PageTwitterInfo;
 };
 
 export const getPageInfo: () => PageInfo = () => {
@@ -21,6 +34,10 @@ export const getPageInfo: () => PageInfo = () => {
   };
   const compare = (a: any, b: any) =>
     Array.isArray(a) ? compareArrays(a, b) : compareValues(a, b);
+  const objectPresence = <T extends { [key: string]: unknown }>(
+    object: T,
+  ): T | undefined =>
+    Object.values(object).some((value) => value != null) ? object : undefined;
 
   const getElementAttribute = (
     selector: string,
@@ -67,8 +84,36 @@ export const getPageInfo: () => PageInfo = () => {
     iconSortKey,
   );
   const iconURL = icon && new URL(icon, url).toString();
+
   const ogImage = getElementAttribute("meta[property='og:image']", "content");
-  const imageURL = ogImage && new URL(ogImage, url).toString();
+  const ogImageURL = ogImage && new URL(ogImage, url).toString();
+
+  const og = objectPresence({
+    title: getElementAttribute("meta[property='og:title']", "content"),
+    siteName: getElementAttribute("meta[property='og:site_name']", "content"),
+    description: getElementAttribute(
+      "meta[property='og:description']",
+      "content",
+    ),
+    image: ogImageURL,
+    imageAlt: getElementAttribute("meta[property='og:image:alt']", "content"),
+  });
+
+  const twitterImage = getElementAttribute(
+    "meta[name='twitter:image']",
+    "content",
+  );
+  const twitterImageURL = twitterImage && new URL(twitterImage, url).toString();
+
+  const twitter = objectPresence({
+    title: getElementAttribute("meta[name='twitter:title']", "content"),
+    description: getElementAttribute(
+      "meta[name='twitter:description']",
+      "content",
+    ),
+    image: twitterImageURL,
+    imageAlt: getElementAttribute("meta[name='twitter:image:alt']", "content"),
+  });
 
   const result: PageInfo = {
     url,
@@ -76,16 +121,8 @@ export const getPageInfo: () => PageInfo = () => {
     icon: iconURL,
     title: document.title,
     description: getElementAttribute("meta[name='description']", "content"),
-    og_title: getElementAttribute("meta[property='og:title']", "content"),
-    og_site_name: getElementAttribute(
-      "meta[property='og:site_name']",
-      "content",
-    ),
-    og_description: getElementAttribute(
-      "meta[property='og:description']",
-      "content",
-    ),
-    og_image: imageURL,
+    og,
+    twitter,
   };
 
   return result;

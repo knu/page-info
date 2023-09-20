@@ -1,3 +1,8 @@
+## Unreleased
+
+- Add basic support for `twitter:*` meta tags.
+- Add support for the dark mode and adjust styles.
+
 ## 0.3.1
 
 - Fix error handling and show the URL and title when run in Chrome extension gallery.
