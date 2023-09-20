@@ -1,14 +1,13 @@
-.PHONY: all zip
-
-NAME?=		$(shell jq -r .name package.json)
-VERSION?=	$(shell jq -r .version manifest.json)
-ZIP_FILE?=	$(NAME)-$(VERSION).zip
+.PHONY: all package bump unbump
 
 all:
 	npm run build
 
-zip: all
-	@rm -rf $(ZIP_FILE)
-	@rsync -a --delete dist/ $(NAME)/
-	zip -r $(ZIP_FILE) $(NAME)
-	@rm -rf $(NAME)
+package: all
+	@./script.sh package
+
+bump:
+	@./script.sh bump
+
+unbump:
+	@./script.sh unbump
