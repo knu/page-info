@@ -4,13 +4,16 @@ This is a Chrome extension that checks for the canonical URL and some basic info
 
 When a web page is loaded, the extension checks if the URL is canonical and changes its icon face depending on the canonical state.
 
-Clicking the extension icon shows the following pieces of information:
+Clicking the extension icon shows a popup window in which you can view the following pieces of information:
 
+- the canonical URL you can follow or copy (&lt;link rel="canonical"&gt;)
+- the site name (og:site_name) and icon (og:icon or &lt;link rel="icon"&gt;)
 - the image (og:image)
 - the page title (og:title or &lt;title&gt;)
-- the canonical URL you can follow or copy
+- Twitter flavored meta tags (twitter:*)
+- a customizable share URL button (optional)
 
-No SEO hypes, no access to any external server, just a simple information viewer.
+No SEO hypes, no access to any external server.  This extension serves as a simple information viewer.
 
 ## Author
 
