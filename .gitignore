@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 *.tsbuildinfo
+/page-info-[0-9]*.zip
 
 # Editor directories and files
 .vscode/*
