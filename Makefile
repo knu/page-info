@@ -8,6 +8,10 @@ package: all
 
 bump:
 	@./script.sh bump
+bump-minor:
+	@./script.sh bump minor
+bump-manor:
+	@./script.sh bump major
 
 unbump:
 	@./script.sh unbump

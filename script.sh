@@ -5,7 +5,7 @@ set -e
 main() {
     case "$1" in
         package|bump|unbump)
-            "$1"
+            "$@"
             ;;
         *)
             echo "Unknown command: $1" >&2
@@ -36,7 +36,16 @@ package() {
 
 bump() {
     set -e
-    ruby -i -pe 'sub(/^  "version": "\K[^"]+/, &:succ)' manifest.json package.json
+    local code
+    case "$1" in
+        major)
+            code='sub(/^  "version": "\K([0-9]+)[^"]+/) { $1.succ + ".0.0" }' ;;
+        minor)
+            code='sub(/^  "version": "[0-9]+\.\K([0-9]+)[^"]+/) { $1.succ + ".0" }' ;;
+        *)
+            code='sub(/^  "version": "\K[^"]+/, &:succ)' ;;
+    esac
+    ruby -i -pe "$code" manifest.json package.json
     local version=$(jq -r .version manifest.json)
 
     echo "Bumping the version to $version"
