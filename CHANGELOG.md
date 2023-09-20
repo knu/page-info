@@ -1,4 +1,4 @@
-## Unreleased
+## 0.4.0
 
 - Add basic support for `twitter:*` meta tags and show a Twitter tab panel if they are found.
 - Add support for the dark mode and adjust styles.
