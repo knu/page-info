@@ -234,7 +234,7 @@ const InactiveTabClasses =
 
 const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
   pageError ? (
-    <div className="mt-2 p-4 rounded bg-amber-100 flex-middle error">
+    <div className="mt-2 p-4 rounded bg-amber-100 dark:text-gray-600 flex-middle error">
       <p className="space-y-2">
         The page information cannot be inspected because of the following error:
       </p>
