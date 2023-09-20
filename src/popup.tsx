@@ -169,6 +169,89 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   );
 };
 
+type SiteSummaryProps = {
+  siteName: string | null | undefined;
+  siteIcon: string | null | undefined;
+  title: string | null | undefined;
+  description: string | null | undefined;
+};
+
+const SiteSummary = ({
+  siteName,
+  siteIcon,
+  title,
+  description,
+}: SiteSummaryProps) => (
+  <>
+    {siteName && (
+      <div className="mb-2 px-2 pr-8 og-site-name">
+        {siteIcon && (
+          <ImageLoader
+            src={siteIcon}
+            title={siteName}
+            className="og-icon"
+            errorAttributes={{
+              alt: "Image Not Found",
+              title: "Image Not Found",
+              className: "og-icon error",
+            }}
+            placeholderContent={<div className="og-icon placeholder" />}
+          />
+        )}
+        <p className="text-base font-bold">{siteName}</p>
+      </div>
+    )}
+
+    {title ? (
+      <div className="px-2 pr-8 og-text">
+        <h1 className="text-xl font-bold">{title}</h1>
+
+        {description && <p className="mt-1 text-base">{description}</p>}
+      </div>
+    ) : (
+      <div className="px-2 placeholder og-text">
+        <div className="dummy-line" />
+        <div className="dummy-line" />
+        <div className="dummy-line" />
+        <div className="dummy-line" />
+        <div className="dummy-line" />
+      </div>
+    )}
+  </>
+);
+
+type SiteImageProps = {
+  image: string | null | undefined;
+  pageError: string | undefined;
+};
+
+const SiteImage = ({ image, pageError }: SiteImageProps) =>
+  pageError ? (
+    <div className="mt-2 p-4 rounded bg-amber-100 flex-middle error">
+      <p className="space-y-2">
+        The page information cannot be inspected because of the following error:
+      </p>
+      <p className="space-y-2 mx-4 text-red-600">{pageError}</p>
+    </div>
+  ) : !image ? (
+    <div className="mt-2 rounded bg-light flex-middle no-og-image">
+      No Image
+    </div>
+  ) : (
+    <ImageLoader
+      src={image}
+      className="mt-2 rounded bg-light flex-middle og-image"
+      errorAttributes={{
+        alt: "Image Not Found",
+        title: "Image Not Found",
+        className: "mt-2 rounded bg-light flex-middle og-image error",
+      }}
+      placeholderContent={
+        <div className="mt-2 rounded bg-light flex-middle og-image placeholder" />
+      }
+    />
+  );
+
 const PageInfoPopup = () => {
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
   const [pageError, setPageError] = useState<string | undefined>();
@@ -230,71 +313,14 @@ const PageInfoPopup = () => {
       {shareURL && shareTitle && (
         <ShareURLButton url={shareURL} title={shareTitle} />
       )}
-
       <div className="pb-8">
-        {og_site_name && (
-          <div className="mb-2 px-2 pr-8 og-site-name">
-            {icon && (
-              <ImageLoader
-                src={icon}
-                title={og_site_name}
-                className="og-icon"
-                errorAttributes={{
-                  alt: "Image Not Found",
-                  title: "Image Not Found",
-                  className: "og-icon error",
-                }}
-                placeholderContent={<div className="og-icon placeholder" />}
-              />
-            )}
-            <p className="text-base font-bold">{og_site_name}</p>
-          </div>
-        )}
-
-        {og_title ?? title ? (
-          <div className="px-2 pr-8 og-text">
-            <h1 className="text-xl font-bold">{og_title ?? title}</h1>
-
-            {(og_description ?? description) && (
-              <p className="mt-1 text-base">{og_description ?? description}</p>
-            )}
-          </div>
-        ) : (
-          <div className="px-2 placeholder og-text">
-            <div className="dummy-line" />
-            <div className="dummy-line" />
-            <div className="dummy-line" />
-            <div className="dummy-line" />
-            <div className="dummy-line" />
-          </div>
-        )}
-
-        {pageError ? (
-          <div className="mt-2 p-4 rounded bg-amber-100 flex-middle error">
-            <p className="space-y-2">
-              The page information cannot be inspected because of the following
-              error:
-            </p>
-            <p className="space-y-2 mx-4 text-red-600">{pageError}</p>
-          </div>
-        ) : og_image ? (
-          <ImageLoader
-            src={og_image}
-            className="mt-2 rounded bg-light flex-middle og-image"
-            errorAttributes={{
-              alt: "Image Not Found",
-              title: "Image Not Found",
-              className: "mt-2 rounded bg-light flex-middle og-image error",
-            }}
-            placeholderContent={
-              <div className="mt-2 rounded bg-light flex-middle og-image placeholder" />
-            }
-          />
-        ) : (
-          <div className="mt-2 rounded bg-light flex-middle no-og-image">
-            No Image
-          </div>
-        )}
+        <SiteSummary
+          siteName={og_site_name}
+          siteIcon={icon}
+          title={og_title ?? title}
+          description={og_description ?? description}
+        />
+        <SiteImage image={og_image} pageError={pageError} />
       </div>
       {url && <URLButton {...{ url, canonicalUrl }} />}
     </div>
