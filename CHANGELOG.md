@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.0
 
 - Implement background URL sharing.
 - Add an option to open the share URL popup in background and auto-close it.
