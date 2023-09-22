@@ -10,7 +10,7 @@ bump:
 	@./script.sh bump
 bump-minor:
 	@./script.sh bump minor
-bump-manor:
+bump-major:
 	@./script.sh bump major
 
 unbump:
