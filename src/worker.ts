@@ -1,4 +1,6 @@
 import { getPageInfo } from "./getPageInfo.ts";
+import { parseTemplate } from "url-template";
+import type { Template } from "url-template";
 import icon16Path from "./images/icon16.png";
 import icon32Path from "./images/icon32.png";
 import icon48Path from "./images/icon48.png";
@@ -12,6 +14,14 @@ import iconNoncanonical32Path from "./images/icon_noncanonical32.png";
 import iconNoncanonical48Path from "./images/icon_noncanonical48.png";
 import iconNoncanonical128Path from "./images/icon_noncanonical128.png";
 
+const safeAsync = <T, E>(
+  promise: Promise<T>,
+  onErrorResolve: (e: any) => E,
+): Promise<T | E> =>
+  new Promise<T | E>((resolve, _reject) =>
+    promise.then(resolve).catch((e) => resolve(onErrorResolve(e))),
+  );
+
 type CanonicalState = "canonical" | "noncanonical" | "unknown";
 
 const canonicalStates = new Map<number, CanonicalState>();
@@ -22,7 +32,9 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
     if (state) return state;
   }
 
-  const { url } = await chrome.tabs.get(tabId);
+  const { url } = await safeAsync(chrome.tabs.get(tabId), (_e) => ({
+    url: undefined,
+  }));
   if (!url || !/^https?:\/\//.test(url)) return "unknown";
 
   try {
@@ -39,8 +51,8 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
       url === canonicalUrl
         ? "canonical"
         : canonicalUrl
-        ? "noncanonical"
-        : "unknown";
+          ? "noncanonical"
+          : "unknown";
     canonicalStates.set(tabId, state);
     return state;
   } catch (e) {
@@ -112,4 +124,142 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 });
 
-export {};
+export type ShareURLMessage = {
+  action: "shareURL";
+  url: string;
+  title: string;
+};
+
+type MessageListener = (
+  message: ShareURLMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+) => boolean;
+
+const shareURLTabs = new Set<number>();
+
+const handleShareURLMessage = async (message: ShareURLMessage) => {
+  const { url, title } = message;
+  const { shareURLTemplate, shareURLInBackground } =
+    await chrome.storage.sync.get({
+      shareURLTemplate: null,
+      shareURLInBackground: false,
+    });
+  if (typeof shareURLTemplate !== "string") return;
+
+  const shareURL = parseTemplate(shareURLTemplate).expand({ url, title });
+  const width = 450;
+  const height = 600;
+
+  chrome.windows
+    .create({
+      url: shareURL,
+      type: "popup",
+      focused: !shareURLInBackground,
+      width,
+      height,
+    })
+    .then(({ tabs }) => {
+      if (shareURLInBackground) {
+        tabs?.forEach(({ id }) => id && shareURLTabs.add(id));
+      }
+    });
+};
+
+const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
+  switch (new URL(url).host) {
+    case "app.raindrop.io":
+      return () =>
+        new Promise((resolve) => {
+          const url = new URL(window.location.href);
+          const timer = setInterval(() => {
+            if (document.readyState === "complete" && !document.hasFocus()) {
+              if (/Bookmark saved/.test(document.title)) {
+                clearInterval(timer);
+                resolve("done");
+              }
+            }
+          }, 250);
+        });
+    case "pinboard.in":
+      return () =>
+        new Promise((resolve) => {
+          const url = new URL(window.location.href);
+          const timer = setInterval(() => {
+            if (document.readyState === "complete" && !document.hasFocus()) {
+              if (url.hostname === "pinboard.in" && url.pathname === "/add") {
+                if (url.search === "") {
+                  clearInterval(timer);
+                  resolve("done");
+                } else {
+                  const button = document.querySelector<HTMLInputElement>(
+                    "form input[type='submit']",
+                  );
+                  if (button) {
+                    clearInterval(timer);
+                    button.click();
+                  }
+                }
+              }
+            }
+          }, 250);
+        });
+    case "getpocket.com":
+      return () =>
+        new Promise((resolve) => {
+          const url = new URL(window.location.href);
+          const timer = setInterval(() => {
+            if (document.readyState === "complete" && !document.hasFocus()) {
+              if (document.querySelector(".removeitem")) {
+                clearInterval(timer);
+                resolve("done");
+              }
+            }
+          }, 250);
+        });
+    default:
+      return null;
+  }
+};
+
+chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
+  if (frameId !== 0 || tabId == null) return;
+  if (!shareURLTabs.has(tabId)) return;
+
+  chrome.tabs.get(tabId).then(({ url }) => {
+    if (!url || !/^https?:\/\//.test(url)) return;
+
+    const func = getShareURLPageScript(url);
+    if (!func) return;
+
+    chrome.scripting
+      .executeScript({
+        target: { tabId },
+        func,
+      })
+      .then(([{ result }]) => {
+        if (result === "done") chrome.tabs.remove(tabId);
+      })
+      .catch(() => { });
+  });
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  shareURLTabs.delete(tabId);
+});
+
+const messageListener: MessageListener = (message, sender, sendResponse) => {
+  const { action } = message;
+
+  switch (action) {
+    case "shareURL":
+      handleShareURLMessage(message);
+      return true;
+  }
+
+  return false;
+};
+
+chrome.runtime.onMessage.addListener(messageListener);
+
+export { getShareURLPageScript };

@@ -6,8 +6,7 @@ import { Popup } from "semantic-ui-react";
 import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
-import { parseTemplate } from "url-template";
-import type { Template } from "url-template";
+import type { ShareURLMessage } from "./worker.ts";
 
 const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
@@ -121,19 +120,16 @@ type ShareProps = {
 
 const ShareURLButton = ({ url, title }: ShareProps) => {
   const [shareIcon, setShareIcon] = useState<string | null>(null);
-  const [shareURLTemplate, setShareURLTemplate] = useState<Template | null>(
-    null,
-  );
+  const [shareURLTemplate, setShareURLTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     chrome.storage.sync.get(
       {
         shareIcon: null,
-        shareURLTemplate: null,
       },
       ({ shareIcon, shareURLTemplate }) => {
         setShareIcon(shareIcon);
-        setShareURLTemplate(parseTemplate(shareURLTemplate));
+        setShareURLTemplate(shareURLTemplate);
       },
     );
   }, []);
@@ -141,22 +137,13 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   if (shareIcon === null || shareURLTemplate === null) return null;
 
   const handleClick = () => {
-    const width = 450;
-    const height = 600;
+    const message: ShareURLMessage = {
+      action: "shareURL",
+      url,
+      title,
+    };
 
-    window.open(
-      shareURLTemplate.expand({ url, title }),
-      "_blank",
-      [
-        `width=${width}`,
-        `height=${height}`,
-        "resizable=yes",
-        "scrollbars=yes",
-        "status=false",
-        "location=false",
-        "toolbar=false",
-      ].join(","),
-    );
+    chrome.runtime.sendMessage(message);
   };
 
   return (

@@ -12,6 +12,7 @@ Clicking the extension icon shows a popup window in which you can view the follo
 - the page title (og:title or &lt;title&gt;)
 - Twitter flavored meta tags (twitter:*)
 - a customizable share URL button (optional)
+    - background sharing that currently supports Raindrop, Pocket and Pinboard
 
 No SEO hypes, no access to any external server.  This extension serves as a simple information viewer.
 

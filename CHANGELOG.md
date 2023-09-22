@@ -1,3 +1,8 @@
+## Unreleased
+
+- Implement background URL sharing.
+- Add an option to open the share URL popup in background and auto-close it.
+
 ## 0.4.0
 
 - Add basic support for `twitter:*` meta tags and show a Twitter tab panel if they are found.
