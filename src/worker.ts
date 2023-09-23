@@ -51,8 +51,8 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
       url === canonicalUrl
         ? "canonical"
         : canonicalUrl
-          ? "noncanonical"
-          : "unknown";
+        ? "noncanonical"
+        : "unknown";
     canonicalStates.set(tabId, state);
     return state;
   } catch (e) {
@@ -240,7 +240,7 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
       .then(([{ result }]) => {
         if (result === "done") chrome.tabs.remove(tabId);
       })
-      .catch(() => { });
+      .catch(() => {});
   });
 });
 

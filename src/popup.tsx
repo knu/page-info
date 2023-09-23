@@ -80,8 +80,8 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const popupContent = isCopied
     ? "Copied!"
     : isCopiable
-      ? "Click to copy the URL"
-      : "Click to visit the canonical URL";
+    ? "Click to copy the URL"
+    : "Click to visit the canonical URL";
 
   return (
     <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-100 dark:border-gray-600 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
@@ -366,10 +366,11 @@ const PageInfoPopup = () => {
             {panels.map(({ id, name }) => (
               <li className="space-x-2" role="presentation">
                 <button
-                  className={`inline-block px-4 py-1 border-b-2 font-sans ${id === selectedPanelID
+                  className={`inline-block px-4 py-1 border-b-2 font-sans ${
+                    id === selectedPanelID
                       ? ActiveTabClasses
                       : InactiveTabClasses
-                    }`}
+                  }`}
                   type="button"
                   role="tab"
                   aria-controls={id}
