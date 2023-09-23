@@ -179,8 +179,6 @@ const SiteSummary = ({
             title={siteName}
             className="og-icon"
             errorAttributes={{
-              alt: "Image Not Found",
-              title: "Image Not Found",
               className: "og-icon error",
             }}
             placeholderContent={<div className="og-icon placeholder" />}
