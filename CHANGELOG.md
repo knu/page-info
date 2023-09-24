@@ -4,6 +4,7 @@
 - Enhance the extension popup
    - The site title is now a button to copy a Markdown link.
    - The site image accepts the context menu item to copy it as Markdown.
+- Adjust colors in the dark mode.
 
 ## 0.5.0
 
