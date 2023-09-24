@@ -6,69 +6,11 @@ import { Popup } from "semantic-ui-react";
 import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
+import { CopiableButton } from "./CopiableButton.tsx";
 import type { ShareURLMessage } from "./worker.ts";
 
 const URLButton = ({ url, canonicalUrl }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
-  const isCopiable = url === pageUrl;
-  const [isOpen, setIsOpen] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  const [timer, setTimer] = useState<number | undefined>();
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setIsCopied(false);
-    clearTimeout(timer);
-  };
-
-  const handleHover = () => {
-    setIsOpen(true);
-    setIsCopied(false);
-    clearTimeout(timer);
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(url).then(() => {
-      setIsOpen(true);
-      setIsCopied(true);
-      clearTimeout(timer);
-      setTimer(
-        setTimeout(() => {
-          setIsOpen(false);
-          setIsCopied(false);
-        }, 750),
-      );
-    });
-  };
-
-  const urlClickHandler =
-    (url: string) => (e: React.MouseEvent<HTMLElement>) => {
-      e.preventDefault();
-
-      if (!url) return;
-
-      chrome.tabs
-        .query({
-          url: ["https://*/*", "http://*/*"],
-          active: true,
-          currentWindow: true,
-        })
-        .then(([tab]) => {
-          if (!tab?.id) return;
-
-          if (isCopiable) {
-            handleCopy();
-          } else {
-            chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              func: ({ url }) => {
-                window.location.href = url;
-              },
-              args: [{ url }],
-            });
-          }
-        });
-    };
 
   const emoji =
     url === canonicalUrl ? (
@@ -77,38 +19,61 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
       <i className="noncanonical-icon external square alternate icon" />
     ) : null;
 
-  const popupContent = isCopied
-    ? "Copied!"
-    : isCopiable
-    ? "Click to copy the URL"
-    : "Click to visit the canonical URL";
-
   return (
     <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-100 dark:border-gray-600 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
-      <Popup
-        trigger={
-          <a
-            href={pageUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
-            title={pageUrl}
-            onClick={urlClickHandler(pageUrl)}
-            onMouseEnter={handleHover}
-            onMouseLeave={handleClose}
-          >
-            {pageUrl}
-          </a>
-        }
-        content={popupContent}
-        position="top left"
-        on={[]}
-        open={isOpen}
-        onClose={handleClose}
-      />
+      {url === pageUrl ? (
+        <CopiableButton
+          className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
+          title={pageUrl}
+          copyText={pageUrl}
+          hoverPopupContent="Click to copy the URL"
+          clickPopupContent="Copied!"
+          position="top left"
+        >
+          {pageUrl}
+        </CopiableButton>
+      ) : (
+        <Popup
+          trigger={
+            <a
+              href={pageUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
+              title={pageUrl}
+              onClick={(e: React.MouseEvent<HTMLElement>) => {
+                e.preventDefault();
+
+                chrome.tabs
+                  .query({
+                    url: ["https://*/*", "http://*/*"],
+                    active: true,
+                    currentWindow: true,
+                  })
+                  .then(([tab]) => {
+                    if (!tab?.id) return;
+
+                    chrome.scripting.executeScript({
+                      target: { tabId: tab.id },
+                      func: ({ pageUrl }) => {
+                        window.location.href = pageUrl;
+                      },
+                      args: [{ pageUrl }],
+                    });
+                  });
+              }}
+            >
+              {pageUrl}
+            </a>
+          }
+          content="Click to visit the canonical URL"
+          position="top left"
+          on="hover"
+        />
+      )}
     </div>
   );
 };
