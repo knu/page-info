@@ -25,6 +25,8 @@
     "activeTab",
     "scripting",
     "webNavigation",
+    "contextMenus",
+    "alarms",
     "clipboardWrite",
     "storage"
   ],

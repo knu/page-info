@@ -242,6 +242,25 @@ const PageInfoPopup = () => {
       "dark:bg-gray-800",
     );
 
+    chrome.runtime.onMessage.addListener(
+      ({ action, text }, _sender, sendResponse) => {
+        switch (action) {
+          case "copyToClipboard":
+            window.focus();
+            navigator.clipboard
+              .writeText(text)
+              .then(() => {
+                sendResponse({ copied: true });
+              })
+              .catch((error) => {
+                sendResponse({ copied: false, error });
+              });
+            return true;
+        }
+        return false;
+      },
+    );
+
     chrome.tabs
       .query({
         url: ["https://*/*", "http://*/*"],

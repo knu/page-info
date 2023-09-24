@@ -1,6 +1,7 @@
 import { getPageInfo } from "./getPageInfo.ts";
 import { parseTemplate } from "url-template";
 import type { Template } from "url-template";
+import { getMarkdownForContext } from "./Markdown.ts";
 import icon16Path from "./images/icon16.png";
 import icon32Path from "./images/icon32.png";
 import icon48Path from "./images/icon48.png";
@@ -21,6 +22,8 @@ const safeAsync = <T, E>(
   new Promise<T | E>((resolve, _reject) =>
     promise.then(resolve).catch((e) => resolve(onErrorResolve(e))),
   );
+
+// Canonical URL detection
 
 type CanonicalState = "canonical" | "noncanonical" | "unknown";
 
@@ -123,6 +126,94 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
 
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 });
+
+// Context menu
+
+const showBadge = ({
+  text,
+  color = [0x7f, 0, 0, 0xff],
+}: {
+  text: string;
+  color?: string | chrome.action.ColorArray;
+}) => {
+  chrome.action.setBadgeBackgroundColor({ color });
+  chrome.action.setBadgeText({ text });
+};
+
+const showSuccessBadge = () => {
+  showBadge({ text: "✓", color: "#00ff00" });
+  chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
+};
+
+const showFailureBadge = () => {
+  showBadge({ text: "×", color: "#ff0000" });
+  chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
+};
+
+chrome.alarms.onAlarm.addListener(({ name }) => {
+  switch (name) {
+    case "clearBadge":
+      showBadge({ text: "" });
+      break;
+  }
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  const tabId = tab?.id;
+  if (!tabId) return;
+
+  const markdown = getMarkdownForContext(info, tab);
+  if (!markdown) return;
+
+  if (tab.url?.startsWith(`chrome-extension://${chrome.runtime.id}/`)) {
+    chrome.runtime
+      .sendMessage({ action: "copyToClipboard", text: markdown })
+      .then(({ copied }) => (copied ? showSuccessBadge() : showFailureBadge()))
+      .catch(() => showFailureBadge());
+  } else {
+    chrome.scripting
+      .executeScript({
+        target: { tabId },
+        func: (markdown) => navigator.clipboard.writeText(markdown),
+        args: [markdown],
+      })
+      .then(() => showSuccessBadge())
+      .catch(() => showFailureBadge());
+  }
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  const items: chrome.contextMenus.CreateProperties[] = [
+    {
+      id: "current-page",
+      title: "Copy a Markdown link to the current page",
+      contexts: ["page"],
+    },
+    {
+      id: "link",
+      title: "Copy a Markdown link",
+      contexts: ["link"],
+    },
+    {
+      id: "image",
+      title: "Copy a Markdown image",
+      contexts: ["image"],
+    },
+  ];
+
+  items.forEach((item) =>
+    chrome.contextMenus.create({
+      documentUrlPatterns: [
+        "http://*/*",
+        "https://*/*",
+        `chrome-extension://${chrome.runtime.id}/*`,
+      ],
+      ...item,
+    }),
+  );
+});
+
+// Background URL sharing
 
 export type ShareURLMessage = {
   action: "shareURL";
