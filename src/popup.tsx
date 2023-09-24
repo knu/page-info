@@ -7,6 +7,7 @@ import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
+import { getMarkdownForContext } from "./Markdown.ts";
 import type { ShareURLMessage } from "./worker.ts";
 
 const URLButton = ({ url, canonicalUrl }: PageInfo) => {
@@ -126,6 +127,7 @@ type SiteSummaryProps = {
   siteName: string | null | undefined;
   siteIcon: string | null | undefined;
   title: string | null | undefined;
+  url: string | null | undefined;
   description: string | null | undefined;
 };
 
@@ -133,6 +135,7 @@ const SiteSummary = ({
   siteName,
   siteIcon,
   title,
+  url,
   description,
 }: SiteSummaryProps) => (
   <>
@@ -155,7 +158,24 @@ const SiteSummary = ({
 
     {title ? (
       <div className="px-2 og-text">
-        <h1 className="text-xl font-bold">{title}</h1>
+        <h1 className="text-xl font-bold">
+          <CopiableButton
+            copyText={() =>
+              getMarkdownForContext({
+                menuItemId: "link",
+                linkUrl: url ?? "",
+                selectionText: title,
+                editable: false,
+                pageUrl: url ?? "",
+              })
+            }
+            hoverPopupContent="Click to copy a Markdown link"
+            clickPopupContent="Copied!"
+            position="top left"
+          >
+            {title}
+          </CopiableButton>
+        </h1>
 
         {description && <p className="mt-1 text-base">{description}</p>}
       </div>
@@ -279,7 +299,8 @@ const PageInfoPopup = () => {
           <SiteSummary
             siteName={og?.siteName}
             siteIcon={icon}
-            title={og?.title ?? title}
+            url={shareURL}
+            title={shareTitle}
             description={og?.description ?? description}
           />
           <SiteImage
@@ -301,6 +322,7 @@ const PageInfoPopup = () => {
           <SiteSummary
             siteName={og?.siteName}
             siteIcon={icon}
+            url={shareURL}
             title={twitter?.title ?? og?.title ?? title}
             description={twitter?.description ?? og?.description ?? description}
           />
