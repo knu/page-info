@@ -21,7 +21,7 @@ const URLButton = ({ url, canonicalUrl }: PageInfo) => {
     ) : null;
 
   return (
-    <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-100 dark:border-gray-600 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
+    <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
