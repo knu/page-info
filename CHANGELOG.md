@@ -1,4 +1,4 @@
-## Unreleased
+## 0.6.0
 
 - Implement context menu items to copy any link or image as Markdown.
 - Enhance the extension popup
