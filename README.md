@@ -1,20 +1,35 @@
 # Page Info
 
-This is a Chrome extension that checks for the canonical URL and some basic information about the web page on the current tab.
+This is a Chrome extension with many features to help check the information about the pages you are viewing.
 
-When a web page is loaded, the extension checks if the URL is canonical and changes its icon face depending on the canonical state.
+No SEO hypes, no access to any external server.  This extension serves as a simple and unobtrusive utility for daily browsing.
 
-Clicking the extension icon shows a popup window in which you can view the following pieces of information:
+Here is a list of implemented features:
 
-- the canonical URL you can follow or copy (&lt;link rel="canonical"&gt;)
-- the site name (og:site_name) and icon (og:icon or &lt;link rel="icon"&gt;)
-- the image (og:image)
-- the page title (og:title or &lt;title&gt;)
-- Twitter flavored meta tags (twitter:*)
-- a customizable share URL button (optional)
-    - background sharing that currently supports Raindrop, Pocket and Pinboard
+- Canonical URL Checker
 
-No SEO hypes, no access to any external server.  This extension serves as a simple information viewer.
+    When a web page is loaded, the extension checks if the URL is canonical and changes its icon face depending on the canonical state.
+
+- Page Information Viewer
+
+    Clicking the extension icon shows a popup window in which you can check out the following pieces of information:
+
+    - the canonical URL you can follow or copy (&lt;link rel="canonical"&gt;)
+    - the site name (og:site_name) and icon (og:icon or &lt;link rel="icon"&gt;)
+    - the image (og:image)
+    - the page title (og:title or &lt;title&gt;)
+        - it also works as a button to copy the link to the page as Markdown
+    - Twitter flavored equivalents for the above items (twitter:*)
+
+- Customizable Share Button
+
+    A customizable share button can be added to the popup window, with which you can bookmark the current page with any popular service on the fly, optionally in the background.
+
+    Background sharing supports Raindrop, Pocket and Pinboard.
+
+- Copy As Markdown
+
+    This extension provides context menu items to copy any link or image as Markdown.
 
 ## Author
 

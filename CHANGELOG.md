@@ -1,3 +1,10 @@
+## Unreleased
+
+- Implement context menu items to copy any link or image as Markdown.
+- Enhance the extension popup
+   - The site title is now a button to copy a Markdown link.
+   - The site image accepts the context menu item to copy it as Markdown.
+
 ## 0.5.0
 
 - Implement background URL sharing.
