@@ -20,6 +20,7 @@ Here is a list of implemented features:
     - the page title (og:title or &lt;title&gt;)
         - it also works as a button to copy the link to the page as Markdown
     - Twitter flavored equivalents for the above items (twitter:*)
+    - the modification and publication time stamps (article:published_time and article:modified_time)
 
 - Customizable Share Button
 

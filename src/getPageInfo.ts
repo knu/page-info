@@ -19,6 +19,8 @@ export type PageInfo = {
   title?: string | null;
   description?: string | null;
   icon?: string | null;
+  publishedTime?: string | null;
+  modifiedTime?: string | null;
   og?: PageOgInfo;
   twitter?: PageTwitterInfo;
 };
@@ -121,6 +123,14 @@ export const getPageInfo: () => PageInfo = () => {
     icon: iconURL,
     title: document.title,
     description: getElementAttribute("meta[name='description']", "content"),
+    publishedTime: getElementAttribute(
+      "meta[property='article:published_time']",
+      "content",
+    ),
+    modifiedTime: getElementAttribute(
+      "meta[property='article:modified_time']",
+      "content",
+    ),
     og,
     twitter,
   };

@@ -297,8 +297,17 @@ const PageInfoPopup = () => {
       });
   }, []);
 
-  const { url, canonicalUrl, title, description, icon, og, twitter } =
-    pageInfo ?? {};
+  const {
+    url,
+    canonicalUrl,
+    title,
+    description,
+    icon,
+    publishedTime,
+    modifiedTime,
+    og,
+    twitter,
+  } = pageInfo ?? {};
 
   const shareURL = canonicalUrl ?? url;
   const shareTitle = og?.title ?? title;
@@ -355,6 +364,40 @@ const PageInfoPopup = () => {
     });
   }
 
+  const toDate = (str: string | null | undefined): Date | null => {
+    if (!str) return null;
+
+    try {
+      return new Date(Date.parse(str));
+    } catch (e) {
+      return null;
+    }
+  };
+  const publishedAt = toDate(publishedTime);
+  const modifiedAt = toDate(modifiedTime);
+  const timeItems: ReactNode[] = [];
+
+  if (publishedAt) {
+    timeItems.push(
+      <span>
+        {"Published at "}
+        <time dateTime={publishedAt.toISOString()}>
+          {publishedAt.toLocaleString()}
+        </time>
+      </span>,
+    );
+  }
+  if (modifiedAt) {
+    timeItems.push(
+      <span>
+        {"Modified at "}
+        <time dateTime={modifiedAt.toISOString()}>
+          {modifiedAt.toLocaleString()}
+        </time>
+      </span>,
+    );
+  }
+
   const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
   const showTabs = panels.length > 1;
 
@@ -392,7 +435,7 @@ const PageInfoPopup = () => {
       )}
       <div
         id="tab-content"
-        className={`overflow-auto pb-10 ${showTabs ? "" : "pr-8"}`}
+        className={`overflow-auto ${showTabs ? "" : "pr-8"}`}
       >
         {panels.map(({ id, render }) => (
           <div
@@ -405,6 +448,26 @@ const PageInfoPopup = () => {
           </div>
         ))}
       </div>
+
+      <div className="mt-1 pb-10">
+        <ul className="text-xs">
+          {timeItems.map((item, i) => (
+            <>
+              <li
+                key={i}
+                className={`inline-block ${
+                  i === 0
+                    ? ""
+                    : "ml-2 pl-2 border-l border-gray-200 dark:border-gray-600"
+                }`}
+              >
+                {item}
+              </li>
+            </>
+          ))}
+        </ul>
+      </div>
+
       {url && <URLButton {...{ url, canonicalUrl }} />}
     </div>
   );

@@ -1,3 +1,7 @@
+## Unreleased
+
+- Show the publication and modification timestamps if present.
+
 ## 0.6.0
 
 - Implement context menu items to copy any link or image as Markdown.
