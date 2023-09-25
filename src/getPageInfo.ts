@@ -16,6 +16,7 @@ type PageTwitterInfo = {
 export type PageInfo = {
   url: string;
   canonicalUrl?: string | null;
+  isCanonical?: boolean | null;
   title?: string | null;
   description?: string | null;
   icon?: string | null;
@@ -57,7 +58,19 @@ export const getPageInfo: () => PageInfo = () => {
     return value || null;
   };
 
+  const normalizeUrl = (url: string | null) => {
+    if (typeof url !== "string") return null;
+
+    try {
+      return new URL(url).toString();
+    } catch (e) {
+      return null;
+    }
+  };
   const url = window.location.href;
+  const canonicalUrl = getElementAttribute("link[rel='canonical']", "href");
+  const isCanonical =
+    url === canonicalUrl || normalizeUrl(url) === normalizeUrl(canonicalUrl);
   const iconSortKey = (elem: Element) => {
     const rel = elem.getAttribute("rel");
     switch (rel) {
@@ -119,7 +132,8 @@ export const getPageInfo: () => PageInfo = () => {
 
   const result: PageInfo = {
     url,
-    canonicalUrl: getElementAttribute("link[rel='canonical']", "href"),
+    canonicalUrl,
+    isCanonical,
     icon: iconURL,
     title: document.title,
     description: getElementAttribute("meta[name='description']", "content"),

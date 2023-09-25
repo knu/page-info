@@ -43,19 +43,18 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
   try {
     const [
       {
-        result: { canonicalUrl },
+        result: { canonicalUrl, isCanonical },
       },
     ] = await chrome.scripting.executeScript({
       target: { tabId },
       func: getPageInfo,
     });
 
-    const state =
-      url === canonicalUrl
-        ? "canonical"
-        : canonicalUrl
-        ? "noncanonical"
-        : "unknown";
+    const state = isCanonical
+      ? "canonical"
+      : canonicalUrl
+      ? "noncanonical"
+      : "unknown";
     canonicalStates.set(tabId, state);
     return state;
   } catch (e) {

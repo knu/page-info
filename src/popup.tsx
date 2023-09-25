@@ -10,15 +10,14 @@ import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import type { ShareURLMessage } from "./worker.ts";
 
-const URLButton = ({ url, canonicalUrl }: PageInfo) => {
+const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
 
-  const emoji =
-    url === canonicalUrl ? (
-      <i className="canonical-icon check square icon" />
-    ) : canonicalUrl ? (
-      <i className="noncanonical-icon external square alternate icon" />
-    ) : null;
+  const emoji = isCanonical ? (
+    <i className="canonical-icon check square icon" />
+  ) : canonicalUrl ? (
+    <i className="noncanonical-icon external square alternate icon" />
+  ) : null;
 
   return (
     <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
@@ -300,6 +299,7 @@ const PageInfoPopup = () => {
   const {
     url,
     canonicalUrl,
+    isCanonical,
     title,
     description,
     icon,
@@ -468,7 +468,7 @@ const PageInfoPopup = () => {
         </ul>
       </div>
 
-      {url && <URLButton {...{ url, canonicalUrl }} />}
+      {url && <URLButton {...{ url, canonicalUrl, isCanonical }} />}
     </div>
   );
 };

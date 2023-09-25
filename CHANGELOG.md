@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Show the publication and modification timestamps if present.
+- Check the canonicality by comparing normalized URLs.
 - Fix placeholder coloring in the dark mode.
 
 ## 0.6.0
