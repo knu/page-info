@@ -59,11 +59,10 @@ const fetchCanonicalState = async (tabId: number, force?: boolean) => {
     canonicalStates.set(tabId, state);
     return state;
   } catch (e) {
-    if (/cannot be scripted/.test(`${e}`)) {
-      return "unknown";
-    } else {
-      throw e;
+    if (!/cannot be scripted|was removed/.test(`${e}`)) {
+      console.error(e);
     }
+    return "unknown";
   }
 };
 
