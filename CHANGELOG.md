@@ -2,6 +2,7 @@
 
 - Show the publication and modification timestamps if present.
 - Check the canonicality by comparing normalized URLs.
+- Automatically close the popup when the current tab loads a new page.
 - Fix placeholder coloring in the dark mode.
 
 ## 0.6.0

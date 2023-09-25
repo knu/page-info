@@ -123,6 +123,11 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
 
   fetchCanonicalState(tabId, true).then(showCanonicalState);
+
+  chrome.runtime
+    .sendMessage({ action: "closePopup" })
+    .then(() => {})
+    .catch(() => {});
 });
 
 // Context menu
