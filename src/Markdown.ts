@@ -71,7 +71,9 @@ export const getMarkdownForContext: (
       });
 
     case "image":
-      return srcUrl ? Markdown.image({ alt: selectionText, src: srcUrl }) : null;
+      return srcUrl
+        ? Markdown.image({ alt: selectionText, src: srcUrl })
+        : null;
   }
 
   throw new TypeError(`unknown context menu ID: ${menuItemId}`);
