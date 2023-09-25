@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Show the publication and modification timestamps if present.
+- Fix placeholder coloring in the dark mode.
 
 ## 0.6.0
 
