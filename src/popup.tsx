@@ -267,10 +267,10 @@ const PageInfoPopup = () => {
           navigator.clipboard
             .writeText(message.text)
             .then(() => {
-              sendResponse({ copied: true });
+              sendResponse({ ok: true });
             })
             .catch((error) => {
-              sendResponse({ copied: false, error });
+              sendResponse({ ok: false, error });
             });
           return true;
         case "closePopup":

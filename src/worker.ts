@@ -171,7 +171,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (tab.url?.startsWith(`chrome-extension://${chrome.runtime.id}/`)) {
     chrome.runtime
       .sendMessage({ action: "copyToClipboard", text: markdown })
-      .then(({ copied }) => (copied ? showSuccessBadge() : showFailureBadge()))
+      .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
       .catch(() => showFailureBadge());
   } else {
     chrome.scripting
