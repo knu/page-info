@@ -112,6 +112,7 @@ const showCanonicalState = (state: CanonicalState) => {
 };
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
+  if (shareURLTabs.has(tabId)) return;
   fetchCanonicalState(tabId).then(showCanonicalState);
 });
 
@@ -121,6 +122,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
+  if (shareURLTabs.has(tabId)) return;
 
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 
@@ -324,26 +326,30 @@ const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
   }
 };
 
-chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
+chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
   if (!shareURLTabs.has(tabId)) return;
 
-  chrome.tabs.get(tabId).then(({ url }) => {
-    if (!url || !/^https?:\/\//.test(url)) return;
-
-    const func = getShareURLPageScript(url);
-    if (!func) return;
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId },
-        func,
-      })
-      .then(([{ result }]) => {
-        if (result === "done") chrome.tabs.remove(tabId);
-      })
-      .catch(() => {});
+  const { shareURLInBackground } = await chrome.storage.sync.get({
+    shareURLInBackground: false,
   });
+  if (!shareURLInBackground) return;
+
+  const { url } = await chrome.tabs.get(tabId);
+  if (!url || !/^https?:\/\//.test(url)) return;
+
+  const func = getShareURLPageScript(url);
+  if (!func) return;
+
+  chrome.scripting
+    .executeScript({
+      target: { tabId },
+      func,
+    })
+    .then(([{ result }]) => {
+      if (result === "done") chrome.tabs.remove(tabId);
+    })
+    .catch(() => {});
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
