@@ -1,3 +1,8 @@
+## Unreleased
+
+- Keep the popup open and update the content when the tab is updated while it is open.
+- Do not reset the canonical state when the Share URL button is clicked.
+
 ## 0.6.1
 
 - Show the publication and modification timestamps if present.
