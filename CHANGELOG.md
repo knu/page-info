@@ -1,4 +1,4 @@
-## Unreleased
+## 0.6.1
 
 - Show the publication and modification timestamps if present.
 - Check the canonicality by comparing normalized URLs.
