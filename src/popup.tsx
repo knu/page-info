@@ -86,13 +86,15 @@ type ShareProps = {
 const ShareURLButton = ({ url, title }: ShareProps) => {
   const [shareIcon, setShareIcon] = useState<string | null>(null);
   const [shareURLTemplate, setShareURLTemplate] = useState<string | null>(null);
-  const [popupContent, setPopupContent] = useState<string | undefined>();
+  const [popupContent, setPopupContent] = useState<ReactNode | undefined>();
   const [timer, setTimer] = useState<number | undefined>();
 
-  const popup = (message: string) => {
-    setPopupContent(message);
+  const popup = (content?: ReactNode | undefined, timeout?: number) => {
+    setPopupContent(content);
     clearTimeout(timer);
-    setTimer(setTimeout(() => setPopupContent(undefined), 750));
+    if (timeout !== undefined) {
+      setTimer(setTimeout(() => setPopupContent(undefined), timeout));
+    }
   };
 
   useEffect(() => {
@@ -109,6 +111,15 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
   if (shareIcon === null || shareURLTemplate === null) return null;
 
+  const handleHover = () => {
+    popup(
+      <div>
+        Click to share the link to
+        <blockquote className="mx-2 break-all">{url}</blockquote>
+      </div>,
+    );
+  };
+
   const handleClick = () => {
     const message: ShareURLMessage = {
       action: "shareURL",
@@ -118,8 +129,8 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
     chrome.runtime
       .sendMessage(message)
-      .then(({ ok }) => (ok ? popup("Sharing...") : popup("Error!")))
-      .catch(() => popup("Error!"));
+      .then(({ ok }) => (ok ? popup("Sharing...", 750) : popup("Error!", 750)))
+      .catch(() => popup("Error!", 750));
   };
 
   return (
@@ -128,6 +139,8 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
         <button
           className="fixed z-50 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
           title="Share the page"
+          onMouseEnter={handleHover}
+          onMouseLeave={() => popup()}
           onClick={handleClick}
         >
           <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
@@ -174,24 +187,36 @@ const SiteSummary = ({
       </div>
     )}
 
-    {title ? (
+    {url && title ? (
       <div className="px-2 og-text">
         <h1 className="text-xl font-bold">
           <CopiableButton
             copyText={() =>
               getMarkdownForContext({
                 menuItemId: "link",
-                linkUrl: url ?? "",
+                linkUrl: url,
                 selectionText: title,
                 editable: false,
-                pageUrl: url ?? "",
+                pageUrl: url,
               })
             }
-            hoverPopupContent="Click to copy a Markdown link"
+            hoverPopupContent={
+              <div>
+                Click to copy a Markdown link to
+                <blockquote className="mx-2 break-all">{url}</blockquote>
+              </div>
+            }
             clickPopupContent="Copied!"
             position="top left"
           >
-            {title}
+            <a
+              href={url}
+              title={url}
+              onClick={(e) => e.preventDefault()}
+              className="text-black dark:text-white hover:text-black dark:hover:text-white"
+            >
+              {title}
+            </a>
           </CopiableButton>
         </h1>
 
@@ -333,26 +358,30 @@ const PageInfoPopup = () => {
     twitter,
   } = pageInfo ?? {};
 
-  const shareURL = canonicalUrl ?? url;
-  const shareTitle = og?.title ?? title;
-
   type Panel = {
     id: string;
     name: string;
-    render: () => ReactNode;
+    url: string | null | undefined;
+    title: string | null | undefined;
+    render: (props: {
+      url: string | null | undefined;
+      title: string | null | undefined;
+    }) => ReactNode;
   };
 
   const panels: Panel[] = [
     {
       id: "og",
       name: "OGP",
-      render: () => (
+      url: canonicalUrl ?? url,
+      title: og?.title ?? title,
+      render: ({ url, title }) => (
         <div>
           <SiteSummary
             siteName={og?.siteName}
             siteIcon={icon}
-            url={shareURL}
-            title={shareTitle}
+            url={url}
+            title={title}
             description={og?.description ?? description}
           />
           <SiteImage
@@ -369,18 +398,45 @@ const PageInfoPopup = () => {
     panels.push({
       id: "twitter",
       name: "Twitter",
-      render: () => (
+      url: canonicalUrl ?? url,
+      title: twitter?.title ?? og?.title ?? title,
+      render: ({ url, title }) => (
         <div>
           <SiteSummary
             siteName={og?.siteName}
             siteIcon={icon}
-            url={shareURL}
-            title={twitter?.title ?? og?.title ?? title}
+            url={url}
+            title={title}
             description={twitter?.description ?? og?.description ?? description}
           />
           <SiteImage
             image={twitter?.image ?? og?.image}
             alt={twitter?.imageAlt ?? og?.imageAlt}
+            pageError={pageError}
+          />
+        </div>
+      ),
+    });
+  }
+
+  if (!isCanonical) {
+    panels.push({
+      id: "noncanonical",
+      name: "Non-canonical",
+      url: url,
+      title: title,
+      render: ({ url, title }) => (
+        <div>
+          <SiteSummary
+            siteName={og?.siteName}
+            siteIcon={icon}
+            url={url}
+            title={title}
+            description={description}
+          />
+          <SiteImage
+            image={og?.image}
+            alt={og?.imageAlt}
             pageError={pageError}
           />
         </div>
@@ -423,6 +479,9 @@ const PageInfoPopup = () => {
   }
 
   const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
+  const { url: shareURL, title: shareTitle } = panels.find(
+    ({ id }) => id == selectedPanelID,
+  ) as Panel;
   const showTabs = panels.length > 1;
 
   return (
@@ -461,14 +520,14 @@ const PageInfoPopup = () => {
         id="tab-content"
         className={`overflow-auto ${showTabs ? "" : "pr-8"}`}
       >
-        {panels.map(({ id, render }) => (
+        {panels.map(({ id, url, title, render }) => (
           <div
             className={id !== selectedPanelID ? "hidden" : ""}
             id={id}
             role="tabpanel"
             aria-labelledby={`${id}-tab`}
           >
-            {render()}
+            {render({ url, title })}
           </div>
         ))}
       </div>
