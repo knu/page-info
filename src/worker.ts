@@ -116,6 +116,12 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   fetchCanonicalState(tabId).then(showCanonicalState);
 });
 
+chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
+  if (url) {
+    fetchCanonicalState(tabId, true).then(showCanonicalState);
+  }
+});
+
 chrome.tabs.onRemoved.addListener((tabId) => {
   clearCanonicalState(tabId);
 });
