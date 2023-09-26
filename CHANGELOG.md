@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.0
 
 - Allow for copying and sharing a non-canonical link.
     - Show a Non-canonical tab if the canonical URL is different from the tab URL.
