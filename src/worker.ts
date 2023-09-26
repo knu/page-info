@@ -127,7 +127,7 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 
   chrome.runtime
-    .sendMessage({ action: "closePopup" })
+    .sendMessage({ action: "updatePopup" })
     .then(() => {})
     .catch(() => {});
 });

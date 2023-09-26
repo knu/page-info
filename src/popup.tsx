@@ -249,10 +249,14 @@ const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
   );
 
 const PageInfoPopup = () => {
+  const [reloadCounter, setReloadCounter] = useState(0);
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
   const [pageError, setPageError] = useState<string | undefined>();
 
   useEffect(() => {
+    setPageInfo(undefined);
+    setPageError(undefined);
+
     document.body.classList.add(
       "text-black",
       "dark:text-white",
@@ -273,8 +277,8 @@ const PageInfoPopup = () => {
               sendResponse({ ok: false, error });
             });
           return true;
-        case "closePopup":
-          window.close();
+        case "updatePopup":
+          setReloadCounter(reloadCounter + 1);
           return true;
       }
       return false;
@@ -314,7 +318,7 @@ const PageInfoPopup = () => {
             }
           });
       });
-  }, []);
+  }, [reloadCounter]);
 
   const {
     url,
