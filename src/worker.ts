@@ -232,32 +232,40 @@ type MessageListener = (
 
 const shareURLTabs = new Set<number>();
 
-const handleShareURLMessage = async (message: ShareURLMessage) => {
+const handleShareURLMessage = (
+  message: ShareURLMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+): boolean => {
   const { url, title } = message;
-  const { shareURLTemplate, shareURLInBackground } =
-    await chrome.storage.sync.get({
+  chrome.storage.sync
+    .get({
       shareURLTemplate: null,
       shareURLInBackground: false,
-    });
-  if (typeof shareURLTemplate !== "string") return;
-
-  const shareURL = parseTemplate(shareURLTemplate).expand({ url, title });
-  const width = 450;
-  const height = 600;
-
-  chrome.windows
-    .create({
-      url: shareURL,
-      type: "popup",
-      focused: !shareURLInBackground,
-      width,
-      height,
     })
-    .then(({ tabs }) => {
-      if (shareURLInBackground) {
-        tabs?.forEach(({ id }) => id && shareURLTabs.add(id));
-      }
+    .then(({ shareURLTemplate, shareURLInBackground }) => {
+      if (typeof shareURLTemplate !== "string") return;
+
+      const shareURL = parseTemplate(shareURLTemplate).expand({ url, title });
+      const width = 450;
+      const height = 600;
+
+      chrome.windows
+        .create({
+          url: shareURL,
+          type: "popup",
+          focused: !shareURLInBackground,
+          width,
+          height,
+        })
+        .then(({ tabs }) => {
+          tabs?.forEach(({ id }) => id && shareURLTabs.add(id));
+          sendResponse({ ok: true });
+        })
+        .catch((e) => sendResponse({ ok: false }));
     });
+
+  return true;
 };
 
 const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
@@ -347,8 +355,7 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
 
   switch (action) {
     case "shareURL":
-      handleShareURLMessage(message);
-      return true;
+      return handleShareURLMessage(message, sender, sendResponse);
   }
 
   return false;

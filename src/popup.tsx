@@ -86,6 +86,14 @@ type ShareProps = {
 const ShareURLButton = ({ url, title }: ShareProps) => {
   const [shareIcon, setShareIcon] = useState<string | null>(null);
   const [shareURLTemplate, setShareURLTemplate] = useState<string | null>(null);
+  const [popupContent, setPopupContent] = useState<string | undefined>();
+  const [timer, setTimer] = useState<number | undefined>();
+
+  const popup = (message: string) => {
+    setPopupContent(message);
+    clearTimeout(timer);
+    setTimer(setTimeout(() => setPopupContent(undefined), 750));
+  };
 
   useEffect(() => {
     chrome.storage.sync.get(
@@ -108,17 +116,28 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
       title,
     };
 
-    chrome.runtime.sendMessage(message);
+    chrome.runtime
+      .sendMessage(message)
+      .then(({ ok }) => (ok ? popup("Sharing...") : popup("Error!")))
+      .catch(() => popup("Error!"));
   };
 
   return (
-    <button
-      className="fixed z-50 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
-      title="Share the page"
-      onClick={handleClick}
-    >
-      <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
-    </button>
+    <Popup
+      trigger={
+        <button
+          className="fixed z-50 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
+          title="Share the page"
+          onClick={handleClick}
+        >
+          <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
+        </button>
+      }
+      content={popupContent}
+      on={[]}
+      open={popupContent !== undefined}
+      position="bottom left"
+    />
   );
 };
 
