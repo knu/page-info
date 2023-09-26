@@ -1,3 +1,10 @@
+## Unreleased
+
+- Allow for copying and sharing a non-canonical link.
+    - Show a Non-canonical tab if the canonical URL is different from the tab URL.
+- Add a hover popup to the title copy button and the Share URL button.
+- Update the icon face even when the tab URL changes via the history API.
+
 ## 0.6.2
 
 - Keep the popup open and update the content when the tab is updated while it is open.
