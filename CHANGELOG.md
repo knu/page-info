@@ -2,6 +2,7 @@
 
 - Set the default shortcut key for this extension to Command/Control+Shift+I.
 - Make typing Command/Control+C in the popup copy a Markdown link.
+- Make typing Command/Control+D in the popup invoke Share URL.
 - Navigate to the canonical URL without sending a referrer.
 - Fix a regression where the canonical state is reset via the Share URL button.
 

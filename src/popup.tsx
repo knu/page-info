@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
 import "semantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
+import Shortcuts from "shortcuts";
 import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
@@ -89,13 +90,16 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   const [popupContent, setPopupContent] = useState<ReactNode | undefined>();
   const [timer, setTimer] = useState<number | undefined>();
 
-  const popup = (content?: ReactNode | undefined, timeout?: number) => {
-    setPopupContent(content);
-    clearTimeout(timer);
-    if (timeout !== undefined) {
-      setTimer(setTimeout(() => setPopupContent(undefined), timeout));
-    }
-  };
+  const popup = useCallback(
+    (content?: ReactNode | undefined, timeout?: number) => {
+      setPopupContent(content);
+      clearTimeout(timer);
+      if (timeout !== undefined) {
+        setTimer(setTimeout(() => setPopupContent(undefined), timeout));
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     chrome.storage.sync.get(
@@ -109,18 +113,16 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
     );
   }, []);
 
-  if (shareIcon === null || shareURLTemplate === null) return null;
-
-  const handleHover = () => {
+  const handleHover = useCallback(() => {
     popup(
       <div>
         Click to share the link to
         <blockquote className="mx-2 break-all">{url}</blockquote>
       </div>,
     );
-  };
+  }, [url]);
 
-  const handleClick = () => {
+  const doShare = useCallback(() => {
     const message: ShareURLMessage = {
       action: "shareURL",
       url,
@@ -131,7 +133,20 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
       .sendMessage(message)
       .then(({ ok }) => (ok ? popup("Sharing...", 750) : popup("Error!", 750)))
       .catch(() => popup("Error!", 750));
-  };
+  }, [url, title, popup]);
+
+  useEffect(() => {
+    const shortcuts = new Shortcuts({ capture: true });
+    shortcuts.add({
+      shortcut: "CmdOrCtrl+D",
+      handler: doShare,
+    });
+    shortcuts.start();
+
+    return () => shortcuts.stop();
+  }, []);
+
+  if (shareIcon === null || shareURLTemplate === null) return null;
 
   return (
     <Popup
@@ -141,7 +156,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
           title="Share the page"
           onMouseEnter={handleHover}
           onMouseLeave={() => popup()}
-          onClick={handleClick}
+          onClick={doShare}
         >
           <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
         </button>
