@@ -1,4 +1,4 @@
-## Unreleased
+## 0.8.0
 
 - Set the default shortcut key for this extension to Command/Control+Shift+I.
 - Make typing Command/Control+C in the popup copy a Markdown link.
