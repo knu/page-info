@@ -363,19 +363,6 @@ const PageInfoPopup = () => {
       });
   }, [reloadCounter]);
 
-  const {
-    url,
-    canonicalUrl,
-    isCanonical,
-    title,
-    description,
-    icon,
-    publishedTime,
-    modifiedTime,
-    og,
-    twitter,
-  } = pageInfo ?? {};
-
   type Panel = {
     id: string;
     name: string;
@@ -388,83 +375,105 @@ const PageInfoPopup = () => {
     }) => ReactNode;
   };
 
-  const panels: Panel[] = [
-    {
-      id: "og",
-      name: "OGP",
-      url: canonicalUrl ?? url,
-      title: og?.title ?? title,
-      render: ({ url, title, selected }) => (
-        <div>
-          <SiteSummary
-            siteName={og?.siteName}
-            siteIcon={icon}
-            url={url}
-            title={title}
-            description={og?.description ?? description}
-            selected={selected}
-          />
-          <SiteImage
-            image={og?.image}
-            alt={og?.imageAlt}
-            pageError={pageError}
-          />
-        </div>
-      ),
-    },
-  ];
+  const [panels, setPanels] = useState([] as Panel[]);
 
-  if (twitter !== undefined) {
-    panels.push({
-      id: "twitter",
-      name: "Twitter",
-      url: canonicalUrl ?? url,
-      title: twitter?.title ?? og?.title ?? title,
-      render: ({ url, title, selected }) => (
-        <div>
-          <SiteSummary
-            siteName={og?.siteName}
-            siteIcon={icon}
-            url={url}
-            title={title}
-            description={twitter?.description ?? og?.description ?? description}
-            selected={selected}
-          />
-          <SiteImage
-            image={twitter?.image ?? og?.image}
-            alt={twitter?.imageAlt ?? og?.imageAlt}
-            pageError={pageError}
-          />
-        </div>
-      ),
-    });
-  }
+  useEffect(() => {
+    const {
+      url,
+      canonicalUrl,
+      isCanonical,
+      title,
+      description,
+      icon,
+      og,
+      twitter,
+    } = pageInfo ?? {};
 
-  if (!isCanonical) {
-    panels.push({
-      id: "noncanonical",
-      name: "Non-canonical",
-      url: url,
-      title: title,
-      render: ({ url, title, selected }) => (
-        <div>
-          <SiteSummary
-            siteName={og?.siteName}
-            siteIcon={icon}
-            url={url}
-            title={title}
-            description={description}
-            selected={selected}
-          />
-          <SiteImage
-            image={og?.image}
-            alt={og?.imageAlt}
-            pageError={pageError}
-          />
-        </div>
-      ),
-    });
-  }
+    const panels: Panel[] = [
+      {
+        id: "og",
+        name: "OGP",
+        url: canonicalUrl ?? url,
+        title: og?.title ?? title,
+        render: ({ url, title, selected }) => (
+          <div>
+            <SiteSummary
+              siteName={og?.siteName}
+              siteIcon={icon}
+              url={url}
+              title={title}
+              description={og?.description ?? description}
+              selected={selected}
+            />
+            <SiteImage
+              image={og?.image}
+              alt={og?.imageAlt}
+              pageError={pageError}
+            />
+          </div>
+        ),
+      },
+    ];
+
+    if (twitter !== undefined) {
+      panels.push({
+        id: "twitter",
+        name: "Twitter",
+        url: canonicalUrl ?? url,
+        title: twitter?.title ?? og?.title ?? title,
+        render: ({ url, title, selected }) => (
+          <div>
+            <SiteSummary
+              siteName={og?.siteName}
+              siteIcon={icon}
+              url={url}
+              title={title}
+              description={
+                twitter?.description ?? og?.description ?? description
+              }
+              selected={selected}
+            />
+            <SiteImage
+              image={twitter?.image ?? og?.image}
+              alt={twitter?.imageAlt ?? og?.imageAlt}
+              pageError={pageError}
+            />
+          </div>
+        ),
+      });
+    }
+
+    if (!isCanonical) {
+      panels.push({
+        id: "noncanonical",
+        name: "Non-canonical",
+        url: url,
+        title: title,
+        render: ({ url, title, selected }) => (
+          <div>
+            <SiteSummary
+              siteName={og?.siteName}
+              siteIcon={icon}
+              url={url}
+              title={title}
+              description={description}
+              selected={selected}
+            />
+            <SiteImage
+              image={og?.image}
+              alt={og?.imageAlt}
+              pageError={pageError}
+            />
+          </div>
+        ),
+      });
+    }
+
+    setPanels(panels);
+  }, [pageInfo]);
+
+  const { url, canonicalUrl, isCanonical, publishedTime, modifiedTime } =
+    pageInfo ?? {};
 
   const toDate = (str: string | null | undefined): Date | null => {
     if (!str) return null;
@@ -501,10 +510,39 @@ const PageInfoPopup = () => {
   }
 
   const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
-  const { url: shareURL, title: shareTitle } = panels.find(
-    ({ id }) => id == selectedPanelID,
-  ) as Panel;
   const showTabs = panels.length > 1;
+
+  const nextPanel = useCallback(() => {
+    const len = panels.length;
+    if (len <= 1) return;
+    const index = panels.findIndex(({ id }) => id === selectedPanelID);
+    setSelectedPanelID(panels[(index + 1) % len].id);
+  }, [panels, selectedPanelID]);
+  const prevPanel = useCallback(() => {
+    const len = panels.length;
+    if (len <= 1) return;
+    const index = panels.findIndex(({ id }) => id === selectedPanelID);
+    setSelectedPanelID(panels[(index - 1 + len) % len].id);
+  }, [panels, selectedPanelID]);
+
+  useEffect(() => {
+    const shortcuts = new Shortcuts({ capture: true });
+    shortcuts.add([
+      { shortcut: "Left", handler: prevPanel },
+      { shortcut: "H", handler: prevPanel },
+      { shortcut: "Right", handler: nextPanel },
+      { shortcut: "L", handler: nextPanel },
+    ]);
+    shortcuts.start();
+
+    return () => shortcuts.stop();
+  }, [prevPanel, nextPanel]);
+
+  if (panels.length === 0) return null;
+
+  const { url: shareURL, title: shareTitle } = panels.find(
+    ({ id }) => id === selectedPanelID,
+  ) as Panel;
 
   return (
     <div id="container" className="p-3">
