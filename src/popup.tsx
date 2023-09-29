@@ -160,6 +160,7 @@ type SiteSummaryProps = {
   title: string | null | undefined;
   url: string | null | undefined;
   description: string | null | undefined;
+  selected?: boolean;
 };
 
 const SiteSummary = ({
@@ -168,6 +169,7 @@ const SiteSummary = ({
   title,
   url,
   description,
+  selected,
 }: SiteSummaryProps) => (
   <>
     {siteName && (
@@ -200,6 +202,7 @@ const SiteSummary = ({
                 pageUrl: url,
               })
             }
+            enableShortcut={selected}
             hoverPopupContent={
               <div>
                 Click to copy a Markdown link to
@@ -366,6 +369,7 @@ const PageInfoPopup = () => {
     render: (props: {
       url: string | null | undefined;
       title: string | null | undefined;
+      selected: boolean;
     }) => ReactNode;
   };
 
@@ -375,7 +379,7 @@ const PageInfoPopup = () => {
       name: "OGP",
       url: canonicalUrl ?? url,
       title: og?.title ?? title,
-      render: ({ url, title }) => (
+      render: ({ url, title, selected }) => (
         <div>
           <SiteSummary
             siteName={og?.siteName}
@@ -383,6 +387,7 @@ const PageInfoPopup = () => {
             url={url}
             title={title}
             description={og?.description ?? description}
+            selected={selected}
           />
           <SiteImage
             image={og?.image}
@@ -400,7 +405,7 @@ const PageInfoPopup = () => {
       name: "Twitter",
       url: canonicalUrl ?? url,
       title: twitter?.title ?? og?.title ?? title,
-      render: ({ url, title }) => (
+      render: ({ url, title, selected }) => (
         <div>
           <SiteSummary
             siteName={og?.siteName}
@@ -408,6 +413,7 @@ const PageInfoPopup = () => {
             url={url}
             title={title}
             description={twitter?.description ?? og?.description ?? description}
+            selected={selected}
           />
           <SiteImage
             image={twitter?.image ?? og?.image}
@@ -425,7 +431,7 @@ const PageInfoPopup = () => {
       name: "Non-canonical",
       url: url,
       title: title,
-      render: ({ url, title }) => (
+      render: ({ url, title, selected }) => (
         <div>
           <SiteSummary
             siteName={og?.siteName}
@@ -433,6 +439,7 @@ const PageInfoPopup = () => {
             url={url}
             title={title}
             description={description}
+            selected={selected}
           />
           <SiteImage
             image={og?.image}
@@ -520,16 +527,20 @@ const PageInfoPopup = () => {
         id="tab-content"
         className={`overflow-auto ${showTabs ? "" : "pr-8"}`}
       >
-        {panels.map(({ id, url, title, render }) => (
-          <div
-            className={id !== selectedPanelID ? "hidden" : ""}
-            id={id}
-            role="tabpanel"
-            aria-labelledby={`${id}-tab`}
-          >
-            {render({ url, title })}
-          </div>
-        ))}
+        {panels.map(({ id, url, title, render }) => {
+          const selected = id === selectedPanelID;
+
+          return (
+            <div
+              className={selected ? undefined : "hidden"}
+              id={id}
+              role="tabpanel"
+              aria-labelledby={`${id}-tab`}
+            >
+              {render({ url, title, selected })}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-1 pb-10">

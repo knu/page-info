@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Popup } from "semantic-ui-react";
 import type { PopupProps } from "semantic-ui-react";
+import Shortcuts from "shortcuts";
 
 export const CopiableButton = ({
   className,
@@ -9,6 +10,7 @@ export const CopiableButton = ({
   hoverPopupContent,
   clickPopupContent,
   copyText,
+  enableShortcut = false,
   children,
   ...props
 }: {
@@ -17,25 +19,26 @@ export const CopiableButton = ({
   hoverPopupContent: ReactNode;
   clickPopupContent: ReactNode;
   copyText: string | (() => string | null) | null | undefined;
+  enableShortcut?: boolean;
   children: ReactNode;
 } & PopupProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [timer, setTimer] = useState<number | undefined>();
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsOpen(false);
     setIsCopied(false);
     clearTimeout(timer);
-  };
+  }, [timer]);
 
-  const handleHover = () => {
+  const handleHover = useCallback(() => {
     setIsOpen(true);
     setIsCopied(false);
     clearTimeout(timer);
-  };
+  }, [timer]);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const doCopy = useCallback(() => {
     const text = typeof copyText === "function" ? copyText() : copyText;
     if (text == null) return;
 
@@ -50,7 +53,26 @@ export const CopiableButton = ({
         }, 750),
       );
     });
-  };
+  }, [copyText, timer]);
+
+  useEffect(() => {
+    if (!enableShortcut) return;
+
+    const shortcuts = new Shortcuts({ capture: true });
+    shortcuts.add({
+      shortcut: "CmdOrCtrl+C",
+      handler: () => {
+        const selectedText = window.getSelection()?.toString() ?? "";
+        if (selectedText === "") {
+          doCopy();
+        } else {
+          navigator.clipboard.writeText(selectedText);
+        }
+      },
+    });
+    shortcuts.start();
+    return () => shortcuts.stop();
+  }, [enableShortcut, doCopy]);
 
   return copyText == null ? (
     children
@@ -60,7 +82,7 @@ export const CopiableButton = ({
         <span
           className={className}
           title={title}
-          onClick={handleClick}
+          onClick={doCopy}
           onMouseEnter={handleHover}
           onMouseLeave={handleClose}
         >
