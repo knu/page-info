@@ -59,7 +59,7 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
                     chrome.scripting.executeScript({
                       target: { tabId: tab.id },
                       func: ({ pageUrl }) => {
-                        window.location.href = pageUrl;
+                        window.open(pageUrl, "_self", "noreferrer,noopener");
                       },
                       args: [{ pageUrl }],
                     });

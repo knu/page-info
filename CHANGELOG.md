@@ -1,3 +1,7 @@
+## Unreleased
+
+- Navigate to the canonical URL without sending a referrer.
+
 ## 0.7.0
 
 - Allow for copying and sharing a non-canonical link.
