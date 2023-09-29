@@ -117,12 +117,14 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
+  if (shareURLTabs.has(tabId)) return;
   if (url) {
     fetchCanonicalState(tabId, true).then(showCanonicalState);
   }
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
+  if (shareURLTabs.has(tabId)) return;
   clearCanonicalState(tabId);
 });
 

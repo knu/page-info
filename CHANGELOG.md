@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Navigate to the canonical URL without sending a referrer.
+- Fix a regression where the canonical state is reset via the Share URL button.
 
 ## 0.7.0
 
