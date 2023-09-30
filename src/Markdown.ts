@@ -50,7 +50,7 @@ export const getMarkdownForContext: (
     case "current-page":
       if (!tab?.url) return null;
 
-      return Markdown.linkedText({ text: tab.title ?? "Link", href: tab.url });
+      return linkedText({ text: tab.title ?? "Link", href: tab.url });
 
     case "link":
       if (!linkUrl) return null;
@@ -58,22 +58,20 @@ export const getMarkdownForContext: (
       switch (mediaType) {
         case "image":
           return srcUrl
-            ? Markdown.linkedImage({
+            ? linkedImage({
                 src: srcUrl,
                 href: linkUrl,
               })
             : null;
       }
 
-      return Markdown.linkedText({
+      return linkedText({
         text: selectionText ?? "Link",
         href: linkUrl,
       });
 
     case "image":
-      return srcUrl
-        ? Markdown.image({ alt: selectionText, src: srcUrl })
-        : null;
+      return srcUrl ? image({ alt: selectionText, src: srcUrl }) : null;
   }
 
   throw new TypeError(`unknown context menu ID: ${menuItemId}`);
