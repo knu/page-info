@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.0
 
 - Add a direct keyboard shortcut to copy a Markdown link to the current page.
 - Copy the text/html version of a link in addition when copying a Markdown link.
