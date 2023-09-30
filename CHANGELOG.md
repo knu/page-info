@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fix Markdown escaping.
+
 ## 0.8.0
 
 - Set the default shortcut key for this extension to Command/Control+Shift+I.

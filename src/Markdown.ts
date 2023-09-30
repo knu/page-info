@@ -1,5 +1,5 @@
 const escapeLinkText = (text: string) =>
-  text.replace(/[\\\[\]*_`~\n]/g, "\\$1");
+  text.replace(/([\\\[\]*_`~\n])/g, "\\$1");
 
 const escapeHref = (href: string) => {
   const parentheses = href.replace(/[^()]+/g, "");
