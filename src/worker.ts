@@ -2,6 +2,7 @@ import { getPageInfo } from "./getPageInfo.ts";
 import { parseTemplate } from "url-template";
 import type { Template } from "url-template";
 import { getMarkdownForContext } from "./Markdown.ts";
+import { getHTMLForContext } from "./HTML.ts";
 import icon16Path from "./images/icon16.png";
 import icon32Path from "./images/icon32.png";
 import icon48Path from "./images/icon48.png";
@@ -176,12 +177,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   const tabId = tab?.id;
   if (!tabId) return;
 
-  const markdown = getMarkdownForContext(info, tab);
-  if (!markdown) return;
+  const text = getMarkdownForContext(info, tab);
+  if (!text) return;
+  const html = getHTMLForContext(info, tab);
 
   if (tab.url?.startsWith(`chrome-extension://${chrome.runtime.id}/`)) {
     chrome.runtime
-      .sendMessage({ action: "copyToClipboard", text: markdown })
+      .sendMessage({ action: "copyToClipboard", text, html })
       .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
       .catch(() => showFailureBadge());
   } else {
@@ -189,7 +191,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       .executeScript({
         target: { tabId },
         func: writeViaNavigator,
-        args: [{ text: markdown }],
+        args: [{ text, html }],
       })
       .then(() => showSuccessBadge())
       .catch(() => showFailureBadge());

@@ -11,6 +11,7 @@ export const CopiableButton = ({
   hoverPopupContent,
   clickPopupContent,
   copyText,
+  copyHTML,
   enableShortcut = false,
   children,
   ...props
@@ -20,6 +21,7 @@ export const CopiableButton = ({
   hoverPopupContent: ReactNode;
   clickPopupContent: ReactNode;
   copyText: string | (() => string | null) | null | undefined;
+  copyHTML?: string | (() => string | null) | null;
   enableShortcut?: boolean;
   children: ReactNode;
 } & PopupProps) => {
@@ -42,8 +44,9 @@ export const CopiableButton = ({
   const doCopy = useCallback(() => {
     const text = typeof copyText === "function" ? copyText() : copyText;
     if (text == null) return;
+    const html = typeof copyHTML === "function" ? copyHTML() : copyHTML;
 
-    writeViaNavigator({ text }).then(() => {
+    writeViaNavigator({ text, html }).then(() => {
       setIsOpen(true);
       setIsCopied(true);
       clearTimeout(timer);

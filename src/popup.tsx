@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
 import "semantic-ui-css/semantic.min.css";
@@ -9,6 +9,7 @@ import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
+import { getHTMLForContext } from "./HTML.ts";
 import type { ShareURLMessage } from "./worker.ts";
 
 const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
@@ -169,6 +170,60 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   );
 };
 
+const OgText = ({
+  url,
+  title,
+  description,
+  selected,
+}: {
+  url: string;
+  title: string;
+  description: string | null | undefined;
+  selected?: boolean;
+}) => {
+  const info: chrome.contextMenus.OnClickData = useMemo(
+    () => ({
+      menuItemId: "link",
+      linkUrl: url,
+      selectionText: title,
+      editable: false,
+      pageUrl: url,
+    }),
+    [url, title],
+  );
+
+  return (
+    <div className="px-2 og-text">
+      <h1 className="text-xl font-bold">
+        <CopiableButton
+          copyText={() => getMarkdownForContext(info)}
+          copyHTML={() => getHTMLForContext(info)}
+          enableShortcut={selected}
+          hoverPopupContent={
+            <div>
+              Click to copy a Markdown link to
+              <blockquote className="mx-2 break-all">{url}</blockquote>
+            </div>
+          }
+          clickPopupContent="Copied!"
+          position="top left"
+        >
+          <a
+            href={url}
+            title={url}
+            onClick={(e) => e.preventDefault()}
+            className="text-black dark:text-white hover:text-black dark:hover:text-white"
+          >
+            {title}
+          </a>
+        </CopiableButton>
+      </h1>
+
+      {description && <p className="mt-1 text-base">{description}</p>}
+    </div>
+  );
+};
+
 type SiteSummaryProps = {
   siteName: string | null | undefined;
   siteIcon: string | null | undefined;
@@ -205,41 +260,7 @@ const SiteSummary = ({
     )}
 
     {url && title ? (
-      <div className="px-2 og-text">
-        <h1 className="text-xl font-bold">
-          <CopiableButton
-            copyText={() =>
-              getMarkdownForContext({
-                menuItemId: "link",
-                linkUrl: url,
-                selectionText: title,
-                editable: false,
-                pageUrl: url,
-              })
-            }
-            enableShortcut={selected}
-            hoverPopupContent={
-              <div>
-                Click to copy a Markdown link to
-                <blockquote className="mx-2 break-all">{url}</blockquote>
-              </div>
-            }
-            clickPopupContent="Copied!"
-            position="top left"
-          >
-            <a
-              href={url}
-              title={url}
-              onClick={(e) => e.preventDefault()}
-              className="text-black dark:text-white hover:text-black dark:hover:text-white"
-            >
-              {title}
-            </a>
-          </CopiableButton>
-        </h1>
-
-        {description && <p className="mt-1 text-base">{description}</p>}
-      </div>
+      <OgText {...{ url, title, description, selected }} />
     ) : (
       <div className="px-2 placeholder og-text">
         <div className="dummy-line" />
