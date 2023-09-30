@@ -17,6 +17,13 @@
     "service_worker": "src/worker.ts",
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["src/content.ts"],
+      "run_at": "document_start"
+    }
+  ],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
@@ -26,6 +33,13 @@
       "suggested_key": {
         "default": "Ctrl+Shift+I",
         "mac": "Command+Shift+I"
+      }
+    },
+    "copyMarkdownLink": {
+      "description": "Copy a Markdown link to the current page",
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
       }
     }
   },

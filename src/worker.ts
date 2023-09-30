@@ -381,3 +381,49 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
 chrome.runtime.onMessage.addListener(messageListener);
 
 export { getShareURLPageScript };
+
+// Commands
+
+const commandCopyMarkdownLink = () => {
+  chrome.tabs
+    .query({
+      url: ["https://*/*", "http://*/*"],
+      active: true,
+      currentWindow: true,
+    })
+    .then(([tab = {}]) => {
+      const { id: tabId, url, title = "Link" } = tab;
+      if (tabId === undefined || url === undefined) {
+        showFailureBadge();
+        return;
+      }
+
+      const info: chrome.contextMenus.OnClickData = {
+        menuItemId: "link",
+        linkUrl: url,
+        selectionText: title,
+        editable: false,
+        pageUrl: url,
+      };
+
+      const text = getMarkdownForContext(info);
+      if (text === null) {
+        showFailureBadge();
+        return;
+      }
+      const html = getHTMLForContext(info);
+
+      chrome.tabs
+        .sendMessage(tabId, { action: "copyToClipboard", text, html })
+        .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
+        .catch(() => showFailureBadge());
+    });
+};
+
+chrome.commands.onCommand.addListener((command) => {
+  switch (command) {
+    case "copyMarkdownLink":
+      commandCopyMarkdownLink();
+      break;
+  }
+});
