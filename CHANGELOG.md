@@ -4,6 +4,7 @@
 - Copy the text/html version of a link in addition when copying a Markdown link.
 - Fix Markdown escaping.
 - Fix unreliable background saving to Raindrop.
+- Ignore invalid timestamp strings.
 
 ## 0.8.0
 

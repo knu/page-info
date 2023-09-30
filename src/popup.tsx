@@ -500,7 +500,8 @@ const PageInfoPopup = () => {
     if (!str) return null;
 
     try {
-      return new Date(Date.parse(str));
+      const time = Date.parse(str);
+      return Number.isNaN(time) ? null : new Date(time);
     } catch (e) {
       return null;
     }
