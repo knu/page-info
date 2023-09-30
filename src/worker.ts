@@ -14,6 +14,7 @@ import iconNoncanonical16Path from "./images/icon_noncanonical16.png";
 import iconNoncanonical32Path from "./images/icon_noncanonical32.png";
 import iconNoncanonical48Path from "./images/icon_noncanonical48.png";
 import iconNoncanonical128Path from "./images/icon_noncanonical128.png";
+import { writeViaNavigator } from "./clipboard.ts";
 
 const safeAsync = <T, E>(
   promise: Promise<T>,
@@ -187,8 +188,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.scripting
       .executeScript({
         target: { tabId },
-        func: (markdown) => navigator.clipboard.writeText(markdown),
-        args: [markdown],
+        func: writeViaNavigator,
+        args: [{ text: markdown }],
       })
       .then(() => showSuccessBadge())
       .catch(() => showFailureBadge());

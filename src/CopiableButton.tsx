@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Popup } from "semantic-ui-react";
 import type { PopupProps } from "semantic-ui-react";
 import Shortcuts from "shortcuts";
+import { writeViaNavigator } from "./clipboard.ts";
 
 export const CopiableButton = ({
   className,
@@ -42,7 +43,7 @@ export const CopiableButton = ({
     const text = typeof copyText === "function" ? copyText() : copyText;
     if (text == null) return;
 
-    navigator.clipboard.writeText(text).then(() => {
+    writeViaNavigator({ text }).then(() => {
       setIsOpen(true);
       setIsCopied(true);
       clearTimeout(timer);
