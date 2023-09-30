@@ -289,7 +289,12 @@ const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
           const url = new URL(window.location.href);
           const timer = setInterval(() => {
             if (document.readyState === "complete" && !document.hasFocus()) {
-              if (/Bookmark saved/.test(document.title)) {
+              if (
+                /Bookmark saved/.test(document.title) &&
+                Array.from(document.querySelectorAll("*[role='button']")).some(
+                  (e) => e.textContent === "Remove",
+                )
+              ) {
                 clearInterval(timer);
                 resolve("done");
               }
