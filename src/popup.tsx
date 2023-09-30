@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
+import Modal from "react-modal";
 import "semantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import Shortcuts from "shortcuts";
@@ -22,7 +23,7 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   ) : null;
 
   return (
-    <div className="fixed z-50 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
+    <div className="fixed z-40 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
@@ -153,7 +154,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
     <Popup
       trigger={
         <button
-          className="fixed z-50 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
+          className="fixed z-40 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
           title="Share the page"
           onMouseEnter={handleHover}
           onMouseLeave={() => popup()}
@@ -313,6 +314,7 @@ const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
   );
 
 const PageInfoPopup = () => {
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [reloadCounter, setReloadCounter] = useState(0);
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
   const [pageError, setPageError] = useState<string | undefined>();
@@ -547,6 +549,17 @@ const PageInfoPopup = () => {
     setSelectedPanelID(panels[(index - 1 + len) % len].id);
   }, [panels, selectedPanelID]);
 
+  const keyDefinitions: [keys: string[], description: string][] = useMemo(
+    () => [
+      [["H", "Left"], "Previous panel"],
+      [["L", "Right"], "Next panel"],
+      [["CmdOrCtrl+C"], "Copy a Markdown link"],
+      [["CmdOrCtrl+D"], "Share URL"],
+      [["?"], "Show or hide this help"],
+    ],
+    [],
+  );
+
   useEffect(() => {
     const shortcuts = new Shortcuts({ capture: true });
     shortcuts.add([
@@ -554,11 +567,13 @@ const PageInfoPopup = () => {
       { shortcut: "H", handler: prevPanel },
       { shortcut: "Right", handler: nextPanel },
       { shortcut: "L", handler: nextPanel },
+      { shortcut: "?", handler: () => setIsHelpOpen(!isHelpOpen) },
+      { shortcut: "Shift+?", handler: () => setIsHelpOpen(!isHelpOpen) },
     ]);
     shortcuts.start();
 
     return () => shortcuts.stop();
-  }, [prevPanel, nextPanel]);
+  }, [prevPanel, nextPanel, isHelpOpen]);
 
   if (panels.length === 0) return null;
 
@@ -568,6 +583,40 @@ const PageInfoPopup = () => {
 
   return (
     <div id="container" className="p-3">
+      <Modal
+        isOpen={isHelpOpen}
+        onRequestClose={() => setIsHelpOpen(false)}
+        className="help-modal absolute z-50 top-4 bottom-4 left-4 right-4 p-4 rounded outline-none text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-700"
+        overlayClassName="help-modal-overlay fixed z-50 top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.4)]"
+        contentLabel="Help"
+      >
+        <div className="help-modal-content grid grid-cols-3 gap-1">
+          <h1 className="col-span-3 text-2xl font-bold text-center">
+            Shortcut Keys
+          </h1>
+          <ul className="col-span-3 text-sm">
+            <li className="grid grid-cols-3 gap-1 leading-8">
+              <div className="font-bold indent-2">Key</div>
+              <div className="col-span-2 font-bold indent-2">Function</div>
+            </li>
+            {keyDefinitions.map(([keys, description]) => (
+              <li className="grid grid-cols-3 gap-1 leading-8">
+                <div>
+                  {keys.map((key, i) => (
+                    <>
+                      <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
+                        {key}
+                      </kbd>
+                      {i < keys.length - 1 && ", "}
+                    </>
+                  ))}
+                </div>
+                <div className="col-span-2">{description}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Modal>
       {shareURL && shareTitle && (
         <ShareURLButton url={shareURL} title={shareTitle} />
       )}
@@ -612,7 +661,7 @@ const PageInfoPopup = () => {
               role="tabpanel"
               aria-labelledby={`${id}-tab`}
             >
-              {render({ url, title, selected })}
+              {render({ url, title, selected: !isHelpOpen && selected })}
             </div>
           );
         })}
