@@ -67,7 +67,7 @@ export const CopiableButton = ({
         if (selectedText === "") {
           doCopy();
         } else {
-          navigator.clipboard.writeText(selectedText);
+          document.execCommand("copy");
         }
       },
     });
