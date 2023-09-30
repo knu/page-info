@@ -37,7 +37,7 @@ export const getPageInfo: () => PageInfo = () => {
   };
   const compare = (a: any, b: any) =>
     Array.isArray(a) ? compareArrays(a, b) : compareValues(a, b);
-  const objectPresence = <T extends { [key: string]: unknown }>(
+  const objectPresence = <T extends Record<string, unknown>>(
     object: T,
   ): T | undefined =>
     Object.values(object).some((value) => value != null) ? object : undefined;
