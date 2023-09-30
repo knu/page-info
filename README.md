@@ -30,7 +30,9 @@ Here is a list of implemented features:
 
 - Copy As Markdown
 
-    This extension provides context menu items to copy any link or image as Markdown.
+    This extension provides context menu items to copy any link or image as Markdown.  Copying a Markdown link also stores a rich text version in HTML in the clipboard so you can paste a link right away to any WYSIWYG editor, Slack, Google Docs, etc.
+
+    A shortcut key can be configured to copy a link to the current page as Markdown. (Default: <kbd>Command+Shift+L</kbd> on macOS, <kbd>Ctrl+Shift+L</kbd> on Windows and Linux)
 
 ## Author
 
