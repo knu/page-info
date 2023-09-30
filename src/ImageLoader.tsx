@@ -33,7 +33,7 @@ export const ImageLoader = ({
     } else if (src === null) {
       setIsLoading(false);
     }
-  });
+  }, [src]);
 
   return imgSrc ? (
     <img src={imgSrc} {...(isError ? errorAttributes : attributes)} />
