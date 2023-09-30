@@ -1,7 +1,7 @@
 .PHONY: all package bump unbump
 
 all:
-	npm run build
+	pnpm run build
 
 package: all
 	@./script.sh package

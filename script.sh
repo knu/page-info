@@ -51,7 +51,7 @@ bump() {
     echo "Bumping the version to $version"
 
     {
-        npm install
+        pnpm install
         make
         package
     } || {
@@ -60,7 +60,7 @@ bump() {
     }
 
     VERSION=$version ruby -i -pe 'sub(/^## \KUnreleased$/, ENV["VERSION"])' CHANGELOG.md
-    git commit -m "Bump the version to $version" manifest.json package.json package-lock.json CHANGELOG.md
+    git commit -m "Bump the version to $version" manifest.json package.json CHANGELOG.md
     git tag -f "v$version"
 
     echo "Bumped the version to $version"
@@ -78,7 +78,7 @@ unbump() {
     local version=$(jq -r .version manifest.json)
     git tag -d "v$version"
     git reset --soft '@^'
-    git restore --staged --worktree manifest.json package.json package-lock.json CHANGELOG.md
+    git restore --staged --worktree manifest.json package.json CHANGELOG.md
 
     echo "Reverted the version to $(version)"
 }
