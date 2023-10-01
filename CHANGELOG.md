@@ -1,3 +1,9 @@
+## Unreleased
+
+- Make typing Command/Control+Shift+C in the popup copy a Markdown link.
+- Make typing Command/Control+C in the popup copy the canonical URL.
+- Refactor shortcut key handling and fix key event propagation.  This prevents Command/Control+D from getting unwantedly propagated to the browser and adding a local bookmark.
+
 ## 0.9.0
 
 - Add a direct keyboard shortcut to copy a Markdown link to the current page.

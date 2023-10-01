@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { Popup } from "semantic-ui-react";
 import type { PopupProps } from "semantic-ui-react";
@@ -9,24 +9,29 @@ export const CopiableButton = ({
   className,
   title,
   hoverPopupContent,
-  clickPopupContent,
+  copiedPopupContent,
+  clickedPopupContent,
   copyText,
   copyHTML,
-  enableShortcut = false,
+  shortcutKey,
+  onClick,
   children,
   ...props
 }: {
   className?: string;
   title?: string;
   hoverPopupContent: ReactNode;
-  clickPopupContent: ReactNode;
+  copiedPopupContent: ReactNode;
+  clickedPopupContent?: ReactNode;
   copyText: string | (() => string | null) | null | undefined;
   copyHTML?: string | (() => string | null) | null;
-  enableShortcut?: boolean;
+  shortcutKey?: string | string[] | null;
+  onClick?: React.MouseEventHandler;
   children: ReactNode;
 } & PopupProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
   const [timer, setTimer] = useState<number | undefined>();
 
   const handleClose = useCallback(() => {
@@ -60,23 +65,39 @@ export const CopiableButton = ({
   }, [copyText, timer]);
 
   useEffect(() => {
-    if (!enableShortcut) return;
+    const shortcutKeys =
+      typeof shortcutKey === "string" ? [shortcutKey] : shortcutKey ?? [];
+    if (shortcutKeys.length === 0) return;
 
     const shortcuts = new Shortcuts({ capture: true });
-    shortcuts.add({
-      shortcut: "CmdOrCtrl+C",
-      handler: () => {
-        const selectedText = window.getSelection()?.toString() ?? "";
-        if (selectedText === "") {
-          doCopy();
-        } else {
-          document.execCommand("copy");
-        }
-      },
-    });
+    const handler = () => {
+      if (window.getSelection()?.toString()) return false;
+      doCopy();
+      return true;
+    };
+    shortcuts.add(shortcutKeys.map((shortcut) => ({ shortcut, handler })));
     shortcuts.start();
     return () => shortcuts.stop();
-  }, [enableShortcut, doCopy]);
+  }, [shortcutKey, doCopy]);
+
+  const handleClick = useMemo(
+    () =>
+      onClick == null
+        ? doCopy
+        : (e: React.MouseEvent) => {
+            onClick(e);
+            setIsOpen(true);
+            setIsClicked(true);
+            clearTimeout(timer);
+            setTimer(
+              setTimeout(() => {
+                setIsOpen(false);
+                setIsClicked(false);
+              }, 750),
+            );
+          },
+    [onClick, doCopy, timer],
+  );
 
   return copyText == null ? (
     children
@@ -86,14 +107,20 @@ export const CopiableButton = ({
         <span
           className={className}
           title={title}
-          onClick={doCopy}
+          onClick={handleClick}
           onMouseEnter={handleHover}
           onMouseLeave={handleClose}
         >
           {children}
         </span>
       }
-      content={isCopied ? clickPopupContent : hoverPopupContent}
+      content={
+        isCopied
+          ? copiedPopupContent
+          : isClicked
+          ? clickedPopupContent
+          : hoverPopupContent
+      }
       on={[]}
       open={isOpen}
       onClose={handleClose}

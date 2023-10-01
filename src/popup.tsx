@@ -5,6 +5,10 @@ import Modal from "react-modal";
 import "semantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import Shortcuts from "shortcuts";
+import type {
+  Descriptor as ShortcutDescriptor,
+  Handler as ShortcutHandler,
+} from "shortcuts";
 import { ImageLoader } from "./ImageLoader.tsx";
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
@@ -12,6 +16,62 @@ import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
 import type { ShareURLMessage } from "./worker.ts";
+
+const ShortcutCommands = [
+  "prevPanel",
+  "nextPanel",
+  "copyURL",
+  "copyMarkdown",
+  "share",
+  "help",
+] as const;
+type ShortcutCommand = (typeof ShortcutCommands)[number];
+const ShortcutDefinitions: {
+  [name in ShortcutCommand]: {
+    shortcut: string[];
+    description: string;
+  };
+} = {
+  prevPanel: {
+    shortcut: ["Left", "H"],
+    description: "Previous panel",
+  },
+  nextPanel: {
+    shortcut: ["Right", "L"],
+    description: "Next panel",
+  },
+  copyURL: {
+    shortcut: ["CmdOrCtrl+C"],
+    description: "Copy the canonical URL",
+  },
+  copyMarkdown: {
+    shortcut: ["CmdOrCtrl+Shift+C"],
+    description: "Copy a Markdown link",
+  },
+  share: {
+    shortcut: ["CmdOrCtrl+D"],
+    description: "Share URL",
+  },
+  help: {
+    shortcut: ["?", "Shift+?"],
+    description: "Show or hide this help",
+  },
+};
+const isShortcutCommand = (name: string): name is ShortcutCommand =>
+  name in ShortcutDefinitions;
+const mustGetShortcutDefinition = (name: string) => {
+  if (!isShortcutCommand(name)) throw `unknown command: ${name}`;
+  return ShortcutDefinitions[name];
+};
+const generateShortcutKeyBindings = (mapping: {
+  [key in ShortcutCommand]?: ShortcutHandler;
+}) =>
+  Object.entries(mapping).flatMap(([name, handler]): ShortcutDescriptor[] =>
+    mustGetShortcutDefinition(name).shortcut.map((key) => ({
+      shortcut: key,
+      handler,
+    })),
+  );
 
 const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
@@ -27,27 +87,24 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
-      {url === pageUrl ? (
-        <CopiableButton
-          className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
-          title={pageUrl}
-          copyText={pageUrl}
-          hoverPopupContent="Click to copy the URL"
-          clickPopupContent="Copied!"
-          position="top left"
-        >
-          {pageUrl}
-        </CopiableButton>
-      ) : (
-        <Popup
-          trigger={
-            <a
-              href={pageUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400"
-              title={pageUrl}
-              onClick={(e: React.MouseEvent<HTMLElement>) => {
+      <CopiableButton
+        className={`overflow-clip text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 ${
+          url === pageUrl ? "" : "cursor-pointer"
+        }`}
+        title={pageUrl}
+        copyText={pageUrl}
+        shortcutKey={ShortcutDefinitions.copyURL.shortcut}
+        hoverPopupContent={
+          url === pageUrl
+            ? "Click to copy the URL"
+            : "Click to visit the canonical URL"
+        }
+        copiedPopupContent="Copied!"
+        clickedPopupContent="Visiting..."
+        onClick={
+          url === pageUrl
+            ? undefined
+            : (e: React.MouseEvent) => {
                 e.preventDefault();
 
                 chrome.tabs
@@ -67,16 +124,12 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
                       args: [{ pageUrl }],
                     });
                   });
-              }}
-            >
-              {pageUrl}
-            </a>
-          }
-          content="Click to visit the canonical URL"
-          position="top left"
-          on="hover"
-        />
-      )}
+              }
+        }
+        position="top left"
+      >
+        {pageUrl}
+      </CopiableButton>
     </div>
   );
 };
@@ -135,14 +188,13 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
       .sendMessage(message)
       .then(({ ok }) => (ok ? popup("Sharing...", 750) : popup("Error!", 750)))
       .catch(() => popup("Error!", 750));
+
+    return true;
   }, [url, title, popup]);
 
   useEffect(() => {
     const shortcuts = new Shortcuts({ capture: true });
-    shortcuts.add({
-      shortcut: "CmdOrCtrl+D",
-      handler: doShare,
-    });
+    shortcuts.add(generateShortcutKeyBindings({ share: doShare }));
     shortcuts.start();
 
     return () => shortcuts.stop();
@@ -199,24 +251,24 @@ const OgText = ({
         <CopiableButton
           copyText={() => getMarkdownForContext(info)}
           copyHTML={() => getHTMLForContext(info)}
-          enableShortcut={selected}
+          shortcutKey={
+            selected ? ShortcutDefinitions.copyMarkdown.shortcut : null
+          }
           hoverPopupContent={
             <div>
               Click to copy a Markdown link to
               <blockquote className="mx-2 break-all">{url}</blockquote>
             </div>
           }
-          clickPopupContent="Copied!"
+          copiedPopupContent="Copied!"
           position="top left"
         >
-          <a
-            href={url}
+          <span
             title={url}
-            onClick={(e) => e.preventDefault()}
             className="text-black dark:text-white hover:text-black dark:hover:text-white"
           >
             {title}
-          </a>
+          </span>
         </CopiableButton>
       </h1>
 
@@ -534,52 +586,45 @@ const PageInfoPopup = () => {
   }
 
   const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
-  const showTabs = panels.length > 1;
+  const selectedPanel = panels.find(({ id }) => id === selectedPanelID);
 
   const nextPanel = useCallback(() => {
     const len = panels.length;
     if (len <= 1) return;
     const index = panels.findIndex(({ id }) => id === selectedPanelID);
     setSelectedPanelID(panels[(index + 1) % len].id);
+    return true;
   }, [panels, selectedPanelID]);
   const prevPanel = useCallback(() => {
     const len = panels.length;
     if (len <= 1) return;
     const index = panels.findIndex(({ id }) => id === selectedPanelID);
     setSelectedPanelID(panels[(index - 1 + len) % len].id);
+    return true;
   }, [panels, selectedPanelID]);
-
-  const keyDefinitions: [keys: string[], description: string][] = useMemo(
-    () => [
-      [["H", "Left"], "Previous panel"],
-      [["L", "Right"], "Next panel"],
-      [["CmdOrCtrl+C"], "Copy a Markdown link"],
-      [["CmdOrCtrl+D"], "Share URL"],
-      [["?"], "Show or hide this help"],
-    ],
-    [],
-  );
 
   useEffect(() => {
     const shortcuts = new Shortcuts({ capture: true });
-    shortcuts.add([
-      { shortcut: "Left", handler: prevPanel },
-      { shortcut: "H", handler: prevPanel },
-      { shortcut: "Right", handler: nextPanel },
-      { shortcut: "L", handler: nextPanel },
-      { shortcut: "?", handler: () => setIsHelpOpen(!isHelpOpen) },
-      { shortcut: "Shift+?", handler: () => setIsHelpOpen(!isHelpOpen) },
-    ]);
+    const help = () => {
+      setIsHelpOpen(!isHelpOpen);
+      return true;
+    };
+    shortcuts.add(
+      generateShortcutKeyBindings({
+        prevPanel,
+        nextPanel,
+        help,
+      }),
+    );
     shortcuts.start();
 
     return () => shortcuts.stop();
   }, [prevPanel, nextPanel, isHelpOpen]);
 
-  if (panels.length === 0) return null;
+  if (!selectedPanel) return null;
 
-  const { url: shareURL, title: shareTitle } = panels.find(
-    ({ id }) => id === selectedPanelID,
-  ) as Panel;
+  const { url: shareURL, title: shareTitle } = selectedPanel;
+  const showTabs = panels.length > 1;
 
   return (
     <div id="container" className="p-3">
@@ -599,21 +644,23 @@ const PageInfoPopup = () => {
               <div className="font-bold indent-2">Key</div>
               <div className="col-span-2 font-bold indent-2">Function</div>
             </li>
-            {keyDefinitions.map(([keys, description]) => (
-              <li className="grid grid-cols-3 gap-1 leading-8">
-                <div>
-                  {keys.map((key, i) => (
-                    <>
-                      <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
-                        {key}
-                      </kbd>
-                      {i < keys.length - 1 && ", "}
-                    </>
-                  ))}
-                </div>
-                <div className="col-span-2">{description}</div>
-              </li>
-            ))}
+            {ShortcutCommands.map(mustGetShortcutDefinition).map(
+              ({ shortcut, description }) => (
+                <li className="grid grid-cols-3 gap-1 leading-8">
+                  <div>
+                    {shortcut.map((key, i) => (
+                      <>
+                        {i > 0 && ", "}
+                        <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
+                          {key}
+                        </kbd>
+                      </>
+                    ))}
+                  </div>
+                  <div className="col-span-2">{description}</div>
+                </li>
+              ),
+            )}
           </ul>
         </div>
       </Modal>
