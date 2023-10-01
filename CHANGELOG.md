@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.1
 
 - Make typing Command/Control+Shift+C in the popup copy a Markdown link.
 - Make typing Command/Control+C in the popup copy the canonical URL.
