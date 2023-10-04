@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.2
 
 - Close the popup when the Share URL button is clicked.  The result is shown by a badge.
 
