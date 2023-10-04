@@ -199,7 +199,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
     shortcuts.start();
 
     return () => shortcuts.stop();
-  }, []);
+  }, [doShare]);
 
   if (shareIcon === null || shareURLTemplate === null) return null;
 
