@@ -160,6 +160,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
     chrome.storage.sync.get(
       {
         shareIcon: null,
+        shareURLTemplate: null,
       },
       ({ shareIcon, shareURLTemplate }) => {
         setShareIcon(shareIcon);
