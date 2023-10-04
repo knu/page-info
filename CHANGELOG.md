@@ -1,3 +1,7 @@
+## Unreleased
+
+- Close the popup when the Share URL button is clicked.  The result is shown by a badge.
+
 ## 0.9.1
 
 - Make typing Command/Control+Shift+C in the popup copy a Markdown link.

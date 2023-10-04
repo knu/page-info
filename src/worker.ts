@@ -364,8 +364,9 @@ chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
     })
     .then(([{ result }]) => {
       if (result === "done") chrome.tabs.remove(tabId);
+      showSuccessBadge();
     })
-    .catch(() => {});
+    .catch(() => showFailureBadge());
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

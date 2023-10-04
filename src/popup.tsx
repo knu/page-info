@@ -187,7 +187,7 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
     chrome.runtime
       .sendMessage(message)
-      .then(({ ok }) => (ok ? popup("Sharing...", 750) : popup("Error!", 750)))
+      .then(({ ok }) => (ok ? window.close() : popup("Error!", 750)))
       .catch(() => popup("Error!", 750));
 
     return true;
