@@ -26,6 +26,23 @@ const safeAsync = <T, E>(
     promise.then(resolve).catch((e) => resolve(onErrorResolve(e))),
   );
 
+type TabInfo = {
+  id: number;
+  url?: string;
+  title?: string;
+};
+
+const getActiveTabInfo = async (): Promise<TabInfo> => {
+  const [{ id = undefined, url = undefined, title = undefined } = {}] =
+    await chrome.tabs.query({
+      url: ["https://*/*", "http://*/*"],
+      active: true,
+      currentWindow: true,
+    });
+  if (!id) throw new Error("null tab id");
+  return { id, url, title };
+};
+
 // Canonical URL detection
 
 const TabPageInfo = new Map<number, PageInfo>();
@@ -255,25 +272,12 @@ export type VisitURLMessage = {
   url: string;
 };
 
-const handleVisitURLMessage = (
-  message: VisitURLMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
-): boolean => {
-  const { url } = message;
-
-  chrome.tabs
-    .query({
-      url: ["https://*/*", "http://*/*"],
-      active: true,
-      currentWindow: true,
-    })
-    .then(([tab]) => {
-      if (!tab?.id) return;
-
+const visitURL = (url: string) => {
+  getActiveTabInfo()
+    .then(({ id }) => {
       chrome.scripting
         .executeScript({
-          target: { tabId: tab.id },
+          target: { tabId: id },
           func: ({ url }) => {
             window.open(url, "_self", "noreferrer,noopener");
           },
@@ -285,6 +289,13 @@ const handleVisitURLMessage = (
     .catch(() => showFailureBadge());
 };
 
+const handleVisitURLMessage = (
+  message: VisitURLMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+): boolean => {
+  const { url } = message;
+  visitURL(url);
   return false;
 };
 
@@ -454,15 +465,9 @@ export { getSaveURLPageScript };
 // Commands
 
 const commandCopyMarkdownLink = () => {
-  chrome.tabs
-    .query({
-      url: ["https://*/*", "http://*/*"],
-      active: true,
-      currentWindow: true,
-    })
-    .then(([tab = {}]) => {
-      const { id: tabId, url, title = "Link" } = tab;
-      if (tabId === undefined || url === undefined) {
+  getActiveTabInfo()
+    .then(({ id: tabId, url, title = "Link" }) => {
+      if (url === undefined) {
         showFailureBadge();
         return;
       }
