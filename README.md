@@ -6,9 +6,11 @@ No SEO hypes, no access to any external server.  This extension serves as a simp
 
 Here is a list of implemented features:
 
-- Canonical URL Checker
+- Canonical URL Checker and quick access with a shortcut key
 
     When a web page is loaded, the extension checks if the URL is canonical and changes its icon face depending on the canonical state.
+
+    A shortcut key is available for visiting the canonical URL of the current page if set. (Default: <kbd>Command+Shift+Home</kbd> on macOS, <kbd>Ctrl+Shift+Home</kbd> on Windows and Linux)
 
 - Page Information Viewer
 
@@ -32,7 +34,7 @@ Here is a list of implemented features:
 
     This extension provides context menu items to copy any link or image as Markdown.  Copying a Markdown link also stores a rich text version in HTML in the clipboard so you can paste a link right away to any WYSIWYG editor, Slack, Google Docs, etc.
 
-    A shortcut key can be configured to copy a link to the current page as Markdown. (Default: <kbd>Command+Shift+L</kbd> on macOS, <kbd>Ctrl+Shift+L</kbd> on Windows and Linux)
+    A shortcut key is available for copying a link to the current page as Markdown. (Default: <kbd>Command+Shift+L</kbd> on macOS, <kbd>Ctrl+Shift+L</kbd> on Windows and Linux)
 
 ## Author
 

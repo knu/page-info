@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Implement a new shortcut key assignable command: "Visit the canonical URL of the current tab if available".
 - Rename the feature "Share URL" to "Save URL online".
 - Add a shortcut key "C" for copying the canonical URL in the popup.
 

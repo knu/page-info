@@ -464,6 +464,23 @@ export { getSaveURLPageScript };
 
 // Commands
 
+const commandVisitCanonicalURL = () => {
+  getActiveTabInfo()
+    .then(({ id }) => {
+      fetchTabPageInfo(id)
+        .then(({ canonicalUrl }) => {
+          if (canonicalUrl) {
+            visitURL(canonicalUrl);
+            showSuccessBadge();
+          } else {
+            showFailureBadge();
+          }
+        })
+        .catch(() => showFailureBadge());
+    })
+    .catch(() => showFailureBadge());
+};
+
 const commandCopyMarkdownLink = () => {
   getActiveTabInfo()
     .then(({ id: tabId, url, title = "Link" }) => {
@@ -497,6 +514,9 @@ const commandCopyMarkdownLink = () => {
 
 chrome.commands.onCommand.addListener((command) => {
   switch (command) {
+    case "visitCanonicalURL":
+      commandVisitCanonicalURL();
+      break;
     case "copyMarkdownLink":
       commandCopyMarkdownLink();
       break;

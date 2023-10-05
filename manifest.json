@@ -41,6 +41,13 @@
         "default": "Ctrl+Shift+L",
         "mac": "Command+Shift+L"
       }
+    },
+    "visitCanonicalURL": {
+      "description": "Visit the canonical URL of the current page if available",
+      "suggested_key": {
+        "default": "Ctrl+Shift+Home",
+        "mac": "Command+Shift+Home"
+      }
     }
   },
   "permissions": [
