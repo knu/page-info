@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.3
 
 - Implement a new shortcut key assignable command: "Visit the canonical URL of the current tab if available".
 - Rename the feature "Share URL" to "Save URL online".
