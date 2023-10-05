@@ -1,3 +1,7 @@
+## Unreleased
+
+- Rename the feature "Share URL" to "Save URL online".
+
 ## 0.9.2
 
 - Close the popup when the Share URL button is clicked.  The result is shown by a badge.

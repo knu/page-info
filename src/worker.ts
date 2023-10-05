@@ -114,25 +114,25 @@ const showCanonicalState = (state: CanonicalState) => {
 };
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
-  if (shareURLTabs.has(tabId)) return;
+  if (saveURLTabs.has(tabId)) return;
   fetchCanonicalState(tabId).then(showCanonicalState);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
-  if (shareURLTabs.has(tabId)) return;
+  if (saveURLTabs.has(tabId)) return;
   if (url) {
     fetchCanonicalState(tabId, true).then(showCanonicalState);
   }
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  if (shareURLTabs.has(tabId)) return;
+  if (saveURLTabs.has(tabId)) return;
   clearCanonicalState(tabId);
 });
 
 chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
-  if (shareURLTabs.has(tabId)) return;
+  if (saveURLTabs.has(tabId)) return;
 
   fetchCanonicalState(tabId, true).then(showCanonicalState);
 
@@ -199,6 +199,35 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
+  // Migration
+  chrome.storage.sync
+    .get({
+      shareIcon: undefined,
+      shareURLTemplate: undefined,
+      shareURLInBackground: undefined,
+    })
+    .then(({ shareIcon, shareURLTemplate, shareURLInBackground }) => {
+      if (
+        shareIcon !== undefined ||
+        shareURLTemplate !== undefined ||
+        shareURLInBackground !== undefined
+      ) {
+        chrome.storage.sync
+          .set({
+            saveURLIcon: shareIcon,
+            saveURLTemplate: shareURLTemplate,
+            saveURLInBackground: shareURLInBackground,
+          })
+          .then(() => {
+            chrome.storage.sync.remove([
+              "shareIcon",
+              "shareURLTemplate",
+              "shareURLInBackground",
+            ]);
+          });
+      }
+    });
+
   const items: chrome.contextMenus.CreateProperties[] = [
     {
       id: "current-page",
@@ -229,50 +258,50 @@ chrome.runtime.onInstalled.addListener(() => {
   );
 });
 
-// Background URL sharing
+// Background URL saving
 
-export type ShareURLMessage = {
-  action: "shareURL";
+export type SaveURLMessage = {
+  action: "saveURL";
   url: string;
   title: string;
 };
 
 type MessageListener = (
-  message: ShareURLMessage,
+  message: SaveURLMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ) => boolean;
 
-const shareURLTabs = new Set<number>();
+const saveURLTabs = new Set<number>();
 
-const handleShareURLMessage = (
-  message: ShareURLMessage,
+const handleSaveURLMessage = (
+  message: SaveURLMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ): boolean => {
   const { url, title } = message;
   chrome.storage.sync
     .get({
-      shareURLTemplate: null,
-      shareURLInBackground: false,
+      saveURLTemplate: null,
+      saveURLInBackground: false,
     })
-    .then(({ shareURLTemplate, shareURLInBackground }) => {
-      if (typeof shareURLTemplate !== "string") return;
+    .then(({ saveURLTemplate, saveURLInBackground }) => {
+      if (typeof saveURLTemplate !== "string") return;
 
-      const shareURL = parseTemplate(shareURLTemplate).expand({ url, title });
+      const saveURL = parseTemplate(saveURLTemplate).expand({ url, title });
       const width = 450;
       const height = 600;
 
       chrome.windows
         .create({
-          url: shareURL,
+          url: saveURL,
           type: "popup",
-          focused: !shareURLInBackground,
+          focused: !saveURLInBackground,
           width,
           height,
         })
         .then(({ tabs }) => {
-          tabs?.forEach(({ id }) => id && shareURLTabs.add(id));
+          tabs?.forEach(({ id }) => id && saveURLTabs.add(id));
           sendResponse({ ok: true });
         })
         .catch((e) => sendResponse({ ok: false }));
@@ -281,7 +310,7 @@ const handleShareURLMessage = (
   return true;
 };
 
-const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
+const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
   switch (new URL(url).host) {
     case "app.raindrop.io":
       return () =>
@@ -344,17 +373,17 @@ const getShareURLPageScript = (url: string): (() => Promise<string>) | null => {
 
 chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
-  if (!shareURLTabs.has(tabId)) return;
+  if (!saveURLTabs.has(tabId)) return;
 
-  const { shareURLInBackground } = await chrome.storage.sync.get({
-    shareURLInBackground: false,
+  const { saveURLInBackground } = await chrome.storage.sync.get({
+    saveURLInBackground: false,
   });
-  if (!shareURLInBackground) return;
+  if (!saveURLInBackground) return;
 
   const { url } = await chrome.tabs.get(tabId);
   if (!url || !/^https?:\/\//.test(url)) return;
 
-  const func = getShareURLPageScript(url);
+  const func = getSaveURLPageScript(url);
   if (!func) return;
 
   chrome.scripting
@@ -370,15 +399,15 @@ chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  shareURLTabs.delete(tabId);
+  saveURLTabs.delete(tabId);
 });
 
 const messageListener: MessageListener = (message, sender, sendResponse) => {
   const { action } = message;
 
   switch (action) {
-    case "shareURL":
-      return handleShareURLMessage(message, sender, sendResponse);
+    case "saveURL":
+      return handleSaveURLMessage(message, sender, sendResponse);
   }
 
   return false;
@@ -386,7 +415,7 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
 
 chrome.runtime.onMessage.addListener(messageListener);
 
-export { getShareURLPageScript };
+export { getSaveURLPageScript };
 
 // Commands
 

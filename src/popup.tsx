@@ -15,14 +15,14 @@ import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
-import type { ShareURLMessage } from "./worker.ts";
+import type { SaveURLMessage } from "./worker.ts";
 
 const ShortcutCommands = [
   "prevPanel",
   "nextPanel",
   "copyURL",
   "copyMarkdown",
-  "share",
+  "saveURL",
   "help",
 ] as const;
 type ShortcutCommand = (typeof ShortcutCommands)[number];
@@ -48,9 +48,9 @@ const ShortcutDefinitions: {
     shortcut: ["CmdOrCtrl+Shift+C"],
     description: "Copy a Markdown link",
   },
-  share: {
+  saveURL: {
     shortcut: ["CmdOrCtrl+D"],
-    description: "Share URL",
+    description: "Save URL online",
   },
   help: {
     shortcut: ["?", "Shift+?"],
@@ -134,14 +134,14 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   );
 };
 
-type ShareProps = {
+type SaveURLProps = {
   url: string;
   title: string;
 };
 
-const ShareURLButton = ({ url, title }: ShareProps) => {
-  const [shareIcon, setShareIcon] = useState<string | null>(null);
-  const [shareURLTemplate, setShareURLTemplate] = useState<string | null>(null);
+const SaveURLButton = ({ url, title }: SaveURLProps) => {
+  const [saveURLIcon, setSaveURLIcon] = useState<string | null>(null);
+  const [saveURLTemplate, setSaveURLTemplate] = useState<string | null>(null);
   const [popupContent, setPopupContent] = useState<ReactNode | undefined>();
   const [timer, setTimer] = useState<number | undefined>();
 
@@ -159,12 +159,12 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   useEffect(() => {
     chrome.storage.sync.get(
       {
-        shareIcon: null,
-        shareURLTemplate: null,
+        saveURLIcon: null,
+        saveURLTemplate: null,
       },
-      ({ shareIcon, shareURLTemplate }) => {
-        setShareIcon(shareIcon);
-        setShareURLTemplate(shareURLTemplate);
+      ({ saveURLIcon, saveURLTemplate }) => {
+        setSaveURLIcon(saveURLIcon);
+        setSaveURLTemplate(saveURLTemplate);
       },
     );
   }, []);
@@ -172,15 +172,15 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
   const handleHover = useCallback(() => {
     popup(
       <div>
-        Click to share the link to
+        Click to save this URL online
         <blockquote className="mx-2 break-all">{url}</blockquote>
       </div>,
     );
   }, [url]);
 
-  const doShare = useCallback(() => {
-    const message: ShareURLMessage = {
-      action: "shareURL",
+  const doSaveURL = useCallback(() => {
+    const message: SaveURLMessage = {
+      action: "saveURL",
       url,
       title,
     };
@@ -195,25 +195,28 @@ const ShareURLButton = ({ url, title }: ShareProps) => {
 
   useEffect(() => {
     const shortcuts = new Shortcuts({ capture: true });
-    shortcuts.add(generateShortcutKeyBindings({ share: doShare }));
+    shortcuts.add(generateShortcutKeyBindings({ saveURL: doSaveURL }));
     shortcuts.start();
 
     return () => shortcuts.stop();
-  }, [doShare]);
+  }, [doSaveURL]);
 
-  if (shareIcon === null || shareURLTemplate === null) return null;
+  if (saveURLIcon === null || saveURLTemplate === null) return null;
 
   return (
     <Popup
       trigger={
         <button
           className="fixed z-40 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
-          title="Share the page"
+          title="Save the URL online"
           onMouseEnter={handleHover}
           onMouseLeave={() => popup()}
-          onClick={doShare}
+          onClick={doSaveURL}
         >
-          <i className={`share-icon ${shareIcon} icon`} style={{ margin: 0 }} />
+          <i
+            className={`save-url-icon ${saveURLIcon} icon`}
+            style={{ margin: 0 }}
+          />
         </button>
       }
       content={popupContent}
@@ -624,7 +627,7 @@ const PageInfoPopup = () => {
 
   if (!selectedPanel) return null;
 
-  const { url: shareURL, title: shareTitle } = selectedPanel;
+  const { url: saveURL, title: saveTitle } = selectedPanel;
   const showTabs = panels.length > 1;
 
   return (
@@ -665,8 +668,8 @@ const PageInfoPopup = () => {
           </ul>
         </div>
       </Modal>
-      {shareURL && shareTitle && (
-        <ShareURLButton url={shareURL} title={shareTitle} />
+      {saveURL && saveTitle && (
+        <SaveURLButton url={saveURL} title={saveTitle} />
       )}
       {showTabs && (
         <div className="mb-2 border-b border-gray-200 dark:border-gray-700 pr-8">

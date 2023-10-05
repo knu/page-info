@@ -22,9 +22,9 @@ Here is a list of implemented features:
     - Twitter flavored equivalents for the above items (twitter:*)
     - the modification and publication time stamps (article:published_time and article:modified_time)
 
-- Customizable Share Button
+- Customizable Save URL Button
 
-    A customizable share button can be added to the popup window, with which you can bookmark the current page with any popular service on the fly, optionally in the background.
+    A customizable Save URL button can be added to the popup window, with which you can bookmark the current page online with any popular service on the fly, optionally in the background.
 
     Background sharing supports Raindrop, Pocket and Pinboard.
 
