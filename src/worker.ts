@@ -1,4 +1,5 @@
 import { getPageInfo } from "./getPageInfo.ts";
+import type { PageInfo } from "./getPageInfo.ts";
 import { parseTemplate } from "url-template";
 import type { Template } from "url-template";
 import { getMarkdownForContext } from "./Markdown.ts";
@@ -27,48 +28,40 @@ const safeAsync = <T, E>(
 
 // Canonical URL detection
 
-type CanonicalState = "canonical" | "noncanonical" | "unknown";
+const TabPageInfo = new Map<number, PageInfo>();
 
-const canonicalStates = new Map<number, CanonicalState>();
-
-const fetchCanonicalState = async (tabId: number, force?: boolean) => {
+const fetchTabPageInfo = async (
+  tabId: number,
+  force?: boolean,
+): Promise<PageInfo> => {
   if (!force) {
-    const state = canonicalStates.get(tabId);
-    if (state) return state;
+    const pageInfo = TabPageInfo.get(tabId);
+    if (pageInfo) return pageInfo;
   }
 
   const { url } = await safeAsync(chrome.tabs.get(tabId), (_e) => ({
     url: undefined,
   }));
-  if (!url || !/^https?:\/\//.test(url)) return "unknown";
+  if (!url || !/^https?:\/\//.test(url)) return { url: url ?? "" };
 
   try {
-    const [
-      {
-        result: { canonicalUrl, isCanonical },
-      },
-    ] = await chrome.scripting.executeScript({
+    const [{ result: pageInfo }] = await chrome.scripting.executeScript({
       target: { tabId },
       func: getPageInfo,
     });
 
-    const state = isCanonical
-      ? "canonical"
-      : canonicalUrl
-      ? "noncanonical"
-      : "unknown";
-    canonicalStates.set(tabId, state);
-    return state;
+    TabPageInfo.set(tabId, pageInfo);
+    return pageInfo;
   } catch (e) {
     if (!/cannot be scripted|was removed/.test(`${e}`)) {
       console.error(e);
     }
-    return "unknown";
+    return { url };
   }
 };
 
-const clearCanonicalState = (tabId: number) => {
-  canonicalStates.delete(tabId);
+const clearTabPageInfo = (tabId: number) => {
+  TabPageInfo.delete(tabId);
 };
 
 const defaultTitle = chrome.runtime.getManifest().action
@@ -93,48 +86,45 @@ const noncanonicalIcon = {
   "128": iconNoncanonical128Path,
 };
 
-const showCanonicalState = (state: CanonicalState) => {
-  switch (state) {
-    case "canonical":
-      chrome.action.setIcon({ path: canonicalIcon });
-      chrome.action.setTitle({
-        title: `${defaultTitle} - This URL is canonical.︎︎`,
-      });
-      break;
-    case "noncanonical":
-      chrome.action.setIcon({ path: noncanonicalIcon });
-      chrome.action.setTitle({
-        title: `${defaultTitle} - There is a canonical URL for this page︎︎.`,
-      });
-      break;
-    default:
-      chrome.action.setIcon({ path: normalIcon });
-      chrome.action.setTitle({ title: defaultTitle });
+const showCanonicalState = ({ isCanonical, canonicalUrl }: PageInfo) => {
+  if (isCanonical) {
+    chrome.action.setIcon({ path: canonicalIcon });
+    chrome.action.setTitle({
+      title: `${defaultTitle} - This URL is canonical.︎︎`,
+    });
+  } else if (canonicalUrl) {
+    chrome.action.setIcon({ path: noncanonicalIcon });
+    chrome.action.setTitle({
+      title: `${defaultTitle} - There is a canonical URL for this page︎︎.`,
+    });
+  } else {
+    chrome.action.setIcon({ path: normalIcon });
+    chrome.action.setTitle({ title: defaultTitle });
   }
 };
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
   if (saveURLTabs.has(tabId)) return;
-  fetchCanonicalState(tabId).then(showCanonicalState);
+  fetchTabPageInfo(tabId).then(showCanonicalState);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
   if (saveURLTabs.has(tabId)) return;
   if (url) {
-    fetchCanonicalState(tabId, true).then(showCanonicalState);
+    fetchTabPageInfo(tabId, true).then(showCanonicalState);
   }
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (saveURLTabs.has(tabId)) return;
-  clearCanonicalState(tabId);
+  clearTabPageInfo(tabId);
 });
 
 chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
   if (saveURLTabs.has(tabId)) return;
 
-  fetchCanonicalState(tabId, true).then(showCanonicalState);
+  fetchTabPageInfo(tabId, true).then(showCanonicalState);
 
   chrome.runtime
     .sendMessage({ action: "updatePopup" })
