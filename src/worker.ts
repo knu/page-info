@@ -184,16 +184,24 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   const tabId = tab?.id;
   if (!tabId) return;
 
-  const text = getMarkdownForContext(info, tab);
-  if (!text) return;
-  const html = getHTMLForContext(info, tab);
-
   if (tab.url?.startsWith(`chrome-extension://${chrome.runtime.id}/`)) {
-    chrome.runtime
-      .sendMessage({ action: "copyToClipboard", text, html })
-      .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
-      .catch(() => showFailureBadge());
+    if (info.menuItemId === "current-page") {
+      commandCopyMarkdownLink();
+    } else {
+      const text = getMarkdownForContext(info, tab);
+      if (!text) return;
+      const html = getHTMLForContext(info, tab);
+
+      chrome.runtime
+        .sendMessage({ action: "copyToClipboard", text, html })
+        .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
+        .catch(() => showFailureBadge());
+    }
   } else {
+    const text = getMarkdownForContext(info, tab);
+    if (!text) return;
+    const html = getHTMLForContext(info, tab);
+
     chrome.scripting
       .executeScript({
         target: { tabId },
