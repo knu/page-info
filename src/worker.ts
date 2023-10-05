@@ -258,6 +258,44 @@ chrome.runtime.onInstalled.addListener(() => {
   );
 });
 
+// visit URL in the current tab
+
+export type VisitURLMessage = {
+  action: "visitURL";
+  url: string;
+};
+
+const handleVisitURLMessage = (
+  message: VisitURLMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+): boolean => {
+  const { url } = message;
+
+  chrome.tabs
+    .query({
+      url: ["https://*/*", "http://*/*"],
+      active: true,
+      currentWindow: true,
+    })
+    .then(([tab]) => {
+      if (!tab?.id) return;
+
+      chrome.scripting
+        .executeScript({
+          target: { tabId: tab.id },
+          func: ({ url }) => {
+            window.open(url, "_self", "noreferrer,noopener");
+          },
+          args: [{ url }],
+        })
+        .then(() => showSuccessBadge())
+        .catch(() => showFailureBadge());
+    });
+
+  return false;
+};
+
 // Background URL saving
 
 export type SaveURLMessage = {
@@ -265,12 +303,6 @@ export type SaveURLMessage = {
   url: string;
   title: string;
 };
-
-type MessageListener = (
-  message: SaveURLMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
-) => boolean;
 
 const saveURLTabs = new Set<number>();
 
@@ -402,10 +434,20 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   saveURLTabs.delete(tabId);
 });
 
+// Message listener for the above
+
+type MessageListener = (
+  message: VisitURLMessage | SaveURLMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+) => boolean;
+
 const messageListener: MessageListener = (message, sender, sendResponse) => {
   const { action } = message;
 
   switch (action) {
+    case "visitURL":
+      return handleVisitURLMessage(message, sender, sendResponse);
     case "saveURL":
       return handleSaveURLMessage(message, sender, sendResponse);
   }

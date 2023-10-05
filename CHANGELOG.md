@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Rename the feature "Share URL" to "Save URL online".
+- Add a shortcut key "C" for copying the canonical URL in the popup.
 
 ## 0.9.2
 

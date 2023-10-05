@@ -15,9 +15,10 @@ import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
-import type { SaveURLMessage } from "./worker.ts";
+import type { VisitURLMessage, SaveURLMessage } from "./worker.ts";
 
 const ShortcutCommands = [
+  "visitCanonicalURL",
   "prevPanel",
   "nextPanel",
   "copyURL",
@@ -32,6 +33,10 @@ const ShortcutDefinitions: {
     description: string;
   };
 } = {
+  visitCanonicalURL: {
+    shortcut: ["C"],
+    description: "Visit the canonical URL",
+  },
   prevPanel: {
     shortcut: ["Left", "H"],
     description: "Previous panel",
@@ -73,6 +78,15 @@ const generateShortcutKeyBindings = (mapping: {
     })),
   );
 
+const visitURL = (url: string) => {
+  const message: VisitURLMessage = {
+    action: "visitURL",
+    url,
+  };
+
+  chrome.runtime.sendMessage(message);
+};
+
 const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
 
@@ -106,24 +120,7 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
             ? undefined
             : (e: React.MouseEvent) => {
                 e.preventDefault();
-
-                chrome.tabs
-                  .query({
-                    url: ["https://*/*", "http://*/*"],
-                    active: true,
-                    currentWindow: true,
-                  })
-                  .then(([tab]) => {
-                    if (!tab?.id) return;
-
-                    chrome.scripting.executeScript({
-                      target: { tabId: tab.id },
-                      func: ({ pageUrl }) => {
-                        window.open(pageUrl, "_self", "noreferrer,noopener");
-                      },
-                      args: [{ pageUrl }],
-                    });
-                  });
+                visitURL(pageUrl);
               }
         }
         position="top left"
@@ -592,6 +589,10 @@ const PageInfoPopup = () => {
   const [selectedPanelID, setSelectedPanelID] = useState<string>("og");
   const selectedPanel = panels.find(({ id }) => id === selectedPanelID);
 
+  const visitCanonicalURL = useCallback(() => {
+    if (canonicalUrl) visitURL(canonicalUrl);
+    return true;
+  }, [canonicalUrl]);
   const nextPanel = useCallback(() => {
     const len = panels.length;
     if (len <= 1) return;
@@ -615,6 +616,7 @@ const PageInfoPopup = () => {
     };
     shortcuts.add(
       generateShortcutKeyBindings({
+        visitCanonicalURL,
         prevPanel,
         nextPanel,
         help,
@@ -623,7 +625,7 @@ const PageInfoPopup = () => {
     shortcuts.start();
 
     return () => shortcuts.stop();
-  }, [prevPanel, nextPanel, isHelpOpen]);
+  }, [visitCanonicalURL, prevPanel, nextPanel, isHelpOpen]);
 
   if (!selectedPanel) return null;
 
