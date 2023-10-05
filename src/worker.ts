@@ -281,7 +281,9 @@ const handleVisitURLMessage = (
         })
         .then(() => showSuccessBadge())
         .catch(() => showFailureBadge());
-    });
+    })
+    .catch(() => showFailureBadge());
+};
 
   return false;
 };
@@ -484,7 +486,8 @@ const commandCopyMarkdownLink = () => {
         .sendMessage(tabId, { action: "copyToClipboard", text, html })
         .then(({ ok }) => (ok ? showSuccessBadge() : showFailureBadge()))
         .catch(() => showFailureBadge());
-    });
+    })
+    .catch(() => showFailureBadge());
 };
 
 chrome.commands.onCommand.addListener((command) => {
