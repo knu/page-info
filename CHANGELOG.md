@@ -1,3 +1,7 @@
+## Unreleased
+
+- Show an in-progress badge while transitioning pages in the Save URL process.
+
 ## 0.9.3
 
 - Implement a new shortcut key assignable command: "Visit the canonical URL of the current tab if available".

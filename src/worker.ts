@@ -164,11 +164,19 @@ const showBadge = ({
 
 const showSuccessBadge = () => {
   showBadge({ text: "✓", color: "#00ff00" });
+  chrome.alarms.clear("clearBadge");
+  chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
+};
+
+const showInProgressBadge = () => {
+  showBadge({ text: "…", color: "#0000ff" });
+  chrome.alarms.clear("clearBadge");
   chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
 };
 
 const showFailureBadge = () => {
   showBadge({ text: "×", color: "#ff0000" });
+  chrome.alarms.clear("clearBadge");
   chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
 };
 
@@ -358,18 +366,19 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
     case "app.raindrop.io":
       return () =>
         new Promise((resolve) => {
-          const url = new URL(window.location.href);
           const timer = setInterval(() => {
-            if (document.readyState === "complete" && !document.hasFocus()) {
-              if (
-                /Bookmark saved/.test(document.title) &&
-                Array.from(document.querySelectorAll("*[role='button']")).some(
-                  (e) => e.textContent === "Remove",
-                )
-              ) {
-                clearInterval(timer);
-                resolve("done");
-              }
+            if (document.readyState !== "complete" || document.hasFocus()) {
+              return;
+            }
+
+            if (
+              document.title?.match(/\bsaved\b/i) &&
+              Array.from(document.querySelectorAll("*[role='button']")).some(
+                (e) => e.textContent === "Remove",
+              )
+            ) {
+              clearInterval(timer);
+              resolve("done");
             }
           }, 250);
         });
@@ -378,19 +387,22 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
         new Promise((resolve) => {
           const url = new URL(window.location.href);
           const timer = setInterval(() => {
-            if (document.readyState === "complete" && !document.hasFocus()) {
-              if (url.hostname === "pinboard.in" && url.pathname === "/add") {
-                if (url.search === "") {
+            if (document.readyState !== "complete" || document.hasFocus()) {
+              return;
+            }
+
+            if (url.hostname === "pinboard.in" && url.pathname === "/add") {
+              if (url.search === "") {
+                clearInterval(timer);
+                resolve("done");
+              } else {
+                const button = document.querySelector<HTMLInputElement>(
+                  "form input[type='submit']",
+                );
+                if (button) {
                   clearInterval(timer);
-                  resolve("done");
-                } else {
-                  const button = document.querySelector<HTMLInputElement>(
-                    "form input[type='submit']",
-                  );
-                  if (button) {
-                    clearInterval(timer);
-                    button.click();
-                  }
+                  button.click();
+                  resolve("saving");
                 }
               }
             }
@@ -399,13 +411,14 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
     case "getpocket.com":
       return () =>
         new Promise((resolve) => {
-          const url = new URL(window.location.href);
           const timer = setInterval(() => {
-            if (document.readyState === "complete" && !document.hasFocus()) {
-              if (document.querySelector(".removeitem")) {
-                clearInterval(timer);
-                resolve("done");
-              }
+            if (document.readyState !== "complete" || document.hasFocus()) {
+              return;
+            }
+
+            if (document.querySelector(".removeitem")) {
+              clearInterval(timer);
+              resolve("done");
             }
           }, 250);
         });
@@ -435,8 +448,14 @@ chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
       func,
     })
     .then(([{ result }]) => {
-      if (result === "done") chrome.tabs.remove(tabId);
-      showSuccessBadge();
+      switch (result) {
+        case "done":
+          chrome.tabs.remove(tabId);
+          showSuccessBadge();
+          break;
+        default:
+          showInProgressBadge();
+      }
     })
     .catch(() => showFailureBadge());
 });
