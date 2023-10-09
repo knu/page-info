@@ -2,6 +2,7 @@
 
 - Add support for Inoreader to the Save URL feature.
 - Show an in-progress badge while transitioning pages in the Save URL process.
+- Bring the background Save URL window to the front if a login form is detected in it.
 
 ## 0.9.3
 

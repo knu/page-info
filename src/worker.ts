@@ -373,12 +373,19 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
 
             if (
               document.title?.match(/\bsaved\b/i) &&
-              Array.from(document.querySelectorAll("*[role='button']")).some(
+              Array.from(document.querySelectorAll("[role='button']")).some(
                 (e) => e.textContent === "Remove",
               )
             ) {
               clearInterval(timer);
               resolve("done");
+            } else if (
+              Array.from(document.querySelectorAll("[role='button']")).some(
+                (e) => e.textContent === "Sign up",
+              )
+            ) {
+              clearInterval(timer);
+              resolve("error");
             }
           }, 250);
         });
@@ -390,8 +397,9 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
             if (document.readyState !== "complete" || document.hasFocus()) {
               return;
             }
+            if (url.hostname !== "pinboard.in") return;
 
-            if (url.hostname === "pinboard.in" && url.pathname === "/add") {
+            if (url.pathname === "/add") {
               if (url.search === "") {
                 clearInterval(timer);
                 resolve("done");
@@ -405,6 +413,11 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
                   resolve("saving");
                 }
               }
+            } else if (
+              document.querySelector("form[name*='login'] [type='submit']")
+            ) {
+              clearInterval(timer);
+              resolve("error");
             }
           }, 250);
         });
@@ -419,6 +432,11 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
             if (document.querySelector(".removeitem")) {
               clearInterval(timer);
               resolve("done");
+            } else if (
+              document.querySelector("form[name*='login'] [type='submit']")
+            ) {
+              clearInterval(timer);
+              resolve("error");
             }
           }, 250);
         });
@@ -445,6 +463,11 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
             ) {
               clearInterval(timer);
               resolve("done");
+            } else if (
+              document.querySelector("form[id*='login'] [type='submit']")
+            ) {
+              clearInterval(timer);
+              resolve("error");
             }
           }, 250);
         });
@@ -478,6 +501,12 @@ chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
         case "done":
           chrome.tabs.remove(tabId);
           showSuccessBadge();
+          break;
+        case "error":
+          showFailureBadge();
+          chrome.tabs.get(tabId).then(({ windowId }) => {
+            chrome.windows.update(windowId, { focused: true });
+          });
           break;
         default:
           showInProgressBadge();
