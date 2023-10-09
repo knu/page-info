@@ -28,7 +28,7 @@ Here is a list of implemented features:
 
     A customizable Save URL button can be added to the popup window, with which you can bookmark the current page online with any popular service on the fly, optionally in the background.
 
-    Background sharing supports Raindrop, Pocket and Pinboard.
+    Background saving works with Raindrop, Pocket, Pinboard and Inoreader.
 
 - Copy As Markdown
 

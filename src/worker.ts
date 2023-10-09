@@ -422,6 +422,32 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
             }
           }, 250);
         });
+    case "www.inoreader.com":
+    case "us.inoreader.com":
+    case "jp.inoreader.com":
+      return () =>
+        new Promise((resolve) => {
+          const timer = setInterval(() => {
+            if (document.readyState !== "complete" || document.hasFocus()) {
+              return;
+            }
+
+            const button = Array.from(document.querySelectorAll("button")).find(
+              (e) => e.textContent?.match(/^Save\b/),
+            );
+            if (button) {
+              clearInterval(timer);
+              button.click();
+              resolve("saving");
+            } else if (
+              !document.title?.match(/Save\b/) &&
+              document.title?.match(/Done\b/)
+            ) {
+              clearInterval(timer);
+              resolve("done");
+            }
+          }, 250);
+        });
     default:
       return null;
   }

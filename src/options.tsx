@@ -8,6 +8,15 @@ const SaveURLPresets = [
   ["Raindrop", "https://app.raindrop.io/add?link={url}&title={title}"],
   ["Pinboard", "https://pinboard.in/add?url={url}&title={title}"],
   ["Pocket", "https://getpocket.com/edit?url={url}"],
+  ["Inoreader", "https://www.inoreader.com/bookmarklet/save_web_page/{url}"],
+  [
+    "Inoreader (US mirror)",
+    "https://us.inoreader.com/bookmarklet/save_web_page/{url}",
+  ],
+  [
+    "Inoreader (JP mirror)",
+    "https://jp.inoreader.com/bookmarklet/save_web_page/{url}",
+  ],
 ];
 
 const PageInfoOptions = () => {
