@@ -649,7 +649,7 @@ const PageInfoPopup = () => {
       <Modal
         isOpen={isHelpOpen}
         onRequestClose={() => setIsHelpOpen(false)}
-        className="help-modal absolute z-50 top-4 bottom-4 left-4 right-4 p-4 rounded outline-none text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-700"
+        className="help-modal absolute z-50 top-8 bottom-8 left-4 right-4 p-4 rounded outline-none text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-700"
         overlayClassName="help-modal-overlay fixed z-50 top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.4)]"
         contentLabel="Help"
       >
