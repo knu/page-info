@@ -373,15 +373,17 @@ const PageInfoPopup = () => {
   const [pageError, setPageError] = useState<string | undefined>();
 
   useEffect(() => {
-    setPageInfo(undefined);
-    setPageError(undefined);
-
     document.body.classList.add(
       "text-black",
       "dark:text-white",
       "bg-white",
       "dark:bg-gray-800",
     );
+  }, []);
+
+  useEffect(() => {
+    setPageInfo(undefined);
+    setPageError(undefined);
 
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       switch (message.action) {
