@@ -1,3 +1,8 @@
+## Unreleased
+
+- Revise the check mark icon.
+- Slightly improve the help modal.
+
 ## 0.9.4
 
 - Add support for Inoreader to the Save URL feature.
