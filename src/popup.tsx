@@ -25,12 +25,13 @@ const ShortcutCommands = [
   "copyMarkdown",
   "saveURL",
   "help",
+  "closeHelp",
 ] as const;
 type ShortcutCommand = (typeof ShortcutCommands)[number];
 const ShortcutDefinitions: {
   [name in ShortcutCommand]: {
     shortcut: string[];
-    description: string;
+    description?: string;
   };
 } = {
   visitCanonicalURL: {
@@ -60,6 +61,9 @@ const ShortcutDefinitions: {
   help: {
     shortcut: ["?", "Shift+?"],
     description: "Show or hide this help",
+  },
+  closeHelp: {
+    shortcut: ["Esc"],
   },
 };
 const isShortcutCommand = (name: string): name is ShortcutCommand =>
@@ -616,12 +620,18 @@ const PageInfoPopup = () => {
       setIsHelpOpen(!isHelpOpen);
       return true;
     };
+    const closeHelp = () => {
+      if (!isHelpOpen) return false;
+      setIsHelpOpen(false);
+      return true;
+    };
     shortcuts.add(
       generateShortcutKeyBindings({
         visitCanonicalURL,
         prevPanel,
         nextPanel,
         help,
+        closeHelp,
       }),
     );
     shortcuts.start();
@@ -653,21 +663,22 @@ const PageInfoPopup = () => {
               <div className="col-span-2 font-bold indent-2">Function</div>
             </li>
             {ShortcutCommands.map(mustGetShortcutDefinition).map(
-              ({ shortcut, description }) => (
-                <li className="grid grid-cols-3 gap-1 leading-8">
-                  <div>
-                    {shortcut.map((key, i) => (
-                      <>
-                        {i > 0 && ", "}
-                        <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
-                          {key}
-                        </kbd>
-                      </>
-                    ))}
-                  </div>
-                  <div className="col-span-2">{description}</div>
-                </li>
-              ),
+              ({ shortcut, description }) =>
+                description && (
+                  <li className="grid grid-cols-3 gap-1 leading-8">
+                    <div>
+                      {shortcut.map((key, i) => (
+                        <>
+                          {i > 0 && ", "}
+                          <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
+                            {key}
+                          </kbd>
+                        </>
+                      ))}
+                    </div>
+                    <div className="col-span-2">{description}</div>
+                  </li>
+                ),
             )}
           </ul>
         </div>
