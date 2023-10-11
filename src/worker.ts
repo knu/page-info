@@ -164,19 +164,16 @@ const showBadge = ({
 
 const showSuccessBadge = () => {
   showBadge({ text: "✓", color: "#00ff00" });
-  chrome.alarms.clear("clearBadge");
   chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
 };
 
 const showInProgressBadge = () => {
   showBadge({ text: "…", color: "#0000ff" });
-  chrome.alarms.clear("clearBadge");
   chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
 };
 
 const showFailureBadge = () => {
   showBadge({ text: "×", color: "#ff0000" });
-  chrome.alarms.clear("clearBadge");
   chrome.alarms.create("clearBadge", { when: Date.now() + 500 });
 };
 
