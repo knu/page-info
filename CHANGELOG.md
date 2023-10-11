@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.5
 
 - Revise the check mark icon.
 - Slightly improve the help modal.
