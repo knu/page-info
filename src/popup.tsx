@@ -625,6 +625,8 @@ const PageInfoPopup = () => {
 
   const { url: saveURL, title: saveTitle } = selectedPanel;
   const showTabs = panels.length > 1;
+  const manifest = chrome.runtime.getManifest();
+  const { homepage_url } = manifest;
 
   return (
     <div id="container" className="p-3">
@@ -635,34 +637,43 @@ const PageInfoPopup = () => {
         overlayClassName="help-modal-overlay fixed z-50 top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.4)]"
         contentLabel="Help"
       >
-        <div className="help-modal-content grid grid-cols-3 gap-1">
-          <h1 className="col-span-3 text-2xl font-bold text-center">
-            Shortcut Keys
-          </h1>
-          <ul className="col-span-3 text-sm">
-            <li className="grid grid-cols-3 gap-1 leading-8">
-              <div className="font-bold indent-2">Key</div>
-              <div className="col-span-2 font-bold indent-2">Function</div>
-            </li>
-            {ShortcutCommands.map(mustGetShortcutDefinition).map(
-              ({ shortcut, description }) =>
-                description && (
-                  <li className="grid grid-cols-3 gap-1 leading-8">
-                    <div>
-                      {shortcut.map((key, i) => (
-                        <>
-                          {i > 0 && ", "}
-                          <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
-                            {key}
-                          </kbd>
-                        </>
-                      ))}
-                    </div>
-                    <div className="col-span-2">{description}</div>
-                  </li>
-                ),
-            )}
-          </ul>
+        <div className="help-modal-window w-full h-full relative">
+          <div className="help-modal-content grid grid-cols-3 gap-1">
+            <h1 className="col-span-3 text-2xl font-bold text-center">
+              Shortcut Keys
+            </h1>
+            <ul className="col-span-3 text-sm">
+              <li className="grid grid-cols-3 gap-1 leading-8">
+                <div className="font-bold indent-2">Key</div>
+                <div className="col-span-2 font-bold indent-2">Function</div>
+              </li>
+              {ShortcutCommands.map(mustGetShortcutDefinition).map(
+                ({ shortcut, description }) =>
+                  description && (
+                    <li className="grid grid-cols-3 gap-1 leading-8">
+                      <div>
+                        {shortcut.map((key, i) => (
+                          <>
+                            {i > 0 && ", "}
+                            <kbd className="mx-1 px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
+                              {key}
+                            </kbd>
+                          </>
+                        ))}
+                      </div>
+                      <div className="col-span-2">{description}</div>
+                    </li>
+                  ),
+              )}
+            </ul>
+            <div className="absolute bottom-0 right-0">
+              <button
+                onClick={() => chrome.tabs.create({ url: homepage_url! })}
+              >
+                {manifest.name} {manifest.version}
+              </button>
+            </div>
+          </div>
         </div>
       </Modal>
       {saveURL && saveTitle && (

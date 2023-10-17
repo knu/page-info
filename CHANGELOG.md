@@ -1,3 +1,7 @@
+## Unreleased
+
+- Show the extension name and version in the help modal.
+
 ## 0.9.5
 
 - Revise the check mark icon.

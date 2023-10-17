@@ -3,6 +3,7 @@
   "description": "Show the page info and the canonical URL, Copy as Markdown, and more",
   "version": "0.9.5",
   "manifest_version": 3,
+  "homepage_url": "https://github.com/knu/page-info",
   "action": {
     "default_popup": "index.html",
     "default_title": "Page Info"
