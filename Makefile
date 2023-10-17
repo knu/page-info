@@ -5,6 +5,8 @@ all:
 
 package: all
 	@./script.sh package
+release:
+	@./script.sh release
 
 bump:
 	@./script.sh bump

@@ -4,7 +4,7 @@ set -e
 
 main() {
     case "$1" in
-        package|bump|unbump)
+        package|bump|unbump|version|changelog|release)
             "$@"
             ;;
         *)
@@ -22,16 +22,29 @@ version() {
 }
 
 package_file() {
-    echo "$(name)-$(version).zip"
+    local version=${1-$(version)}
+    echo "$(name)-$version.zip"
 }
 
 package() {
     set -e
-    local name="$(name)" zip="$(package_file)"
+    local version=${1-$(version)}
+    local name="$(name)" zip="$(package_file "$version")"
     rm -rf "$zip"
     rsync -a --delete dist/ "$name"/
     zip -r "$zip" "$name"
     rm -rf "$name"
+}
+
+changelog() {
+    local version=${1-$(version)}
+    ruby -e 'v,=ARGV;puts File.read("CHANGELOG.md").scan(/^## (.+)\n((?~^(?=##)))/).to_h[v].strip' "$version"
+}
+
+release() {
+    local version=${1-$(version)}
+
+    gh release create "v$version" -t "v$version" -n "$(changelog "$version")" -- "$(package_file "$version")"
 }
 
 bump() {
@@ -46,7 +59,7 @@ bump() {
             code='sub(/^  "version": "\K[^"]+/, &:succ)' ;;
     esac
     ruby -i -pe "$code" manifest.json package.json
-    local version=$(jq -r .version manifest.json)
+    local version=$(version)
 
     echo "Bumping the version to $version"
 
