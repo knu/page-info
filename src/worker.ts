@@ -41,6 +41,40 @@ export const getActiveTabInfo = async (): Promise<TabInfo> => {
   return tab;
 };
 
+export const visitURL = async ({
+  tabId,
+  url,
+}: {
+  tabId?: number;
+  url: string;
+}) => {
+  try {
+    try {
+      const id = tabId ?? (await getActiveTabInfo()).id;
+
+      try {
+        // Try window.open() to keep the browser history
+        await chrome.scripting.executeScript({
+          target: { tabId: id },
+          func: ({ url }) => {
+            window.open(url, "_self", "noreferrer,noopener");
+          },
+          args: [{ url }],
+        });
+      } catch {
+        // fall back to chrome.tabs.update()
+        await chrome.tabs.update(id, { url, highlighted: true });
+      }
+    } catch {
+      // create a new tab as the last resort
+      await chrome.tabs.create({ url });
+    }
+    showSuccessBadge();
+  } catch {
+    showFailureBadge();
+  }
+};
+
 // Canonical URL detection
 
 const TabPageInfo = new Map<number, PageInfo>();
@@ -276,40 +310,6 @@ chrome.runtime.onInstalled.addListener(() => {
   );
 });
 
-// visit URL in the current tab
-
-export type VisitURLMessage = {
-  action: "visitURL";
-  url: string;
-};
-
-const visitURL = (url: string) => {
-  getActiveTabInfo()
-    .then(({ id }) => {
-      chrome.scripting
-        .executeScript({
-          target: { tabId: id },
-          func: ({ url }) => {
-            window.open(url, "_self", "noreferrer,noopener");
-          },
-          args: [{ url }],
-        })
-        .then(() => showSuccessBadge())
-        .catch(() => showFailureBadge());
-    })
-    .catch(() => showFailureBadge());
-};
-
-const handleVisitURLMessage = (
-  message: VisitURLMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
-): boolean => {
-  const { url } = message;
-  visitURL(url);
-  return false;
-};
-
 // Background URL saving
 
 export type SaveURLMessage = {
@@ -517,7 +517,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Message listener for the above
 
 type MessageListener = (
-  message: VisitURLMessage | SaveURLMessage,
+  message: SaveURLMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ) => boolean;
@@ -526,8 +526,6 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
   const { action } = message;
 
   switch (action) {
-    case "visitURL":
-      return handleVisitURLMessage(message, sender, sendResponse);
     case "saveURL":
       return handleSaveURLMessage(message, sender, sendResponse);
   }
@@ -547,8 +545,7 @@ const commandVisitCanonicalURL = () => {
       fetchTabPageInfo(id)
         .then(({ canonicalUrl }) => {
           if (canonicalUrl) {
-            visitURL(canonicalUrl);
-            showSuccessBadge();
+            visitURL({ tabId: id, url: canonicalUrl });
           } else {
             showFailureBadge();
           }

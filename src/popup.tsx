@@ -15,7 +15,8 @@ import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
-import type { VisitURLMessage, SaveURLMessage } from "./worker.ts";
+import { getActiveTabInfo, visitURL } from "./worker.ts";
+import type { SaveURLMessage } from "./worker.ts";
 
 const ShortcutCommands = [
   "visitCanonicalURL",
@@ -82,15 +83,6 @@ const generateShortcutKeyBindings = (mapping: {
     })),
   );
 
-const visitURL = (url: string) => {
-  const message: VisitURLMessage = {
-    action: "visitURL",
-    url,
-  };
-
-  chrome.runtime.sendMessage(message);
-};
-
 const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   const pageUrl = canonicalUrl ?? url;
 
@@ -124,7 +116,7 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
             ? undefined
             : (e: React.MouseEvent) => {
                 e.preventDefault();
-                visitURL(pageUrl);
+                visitURL({ url: pageUrl });
               }
         }
         position="top left"
@@ -409,21 +401,11 @@ const PageInfoPopup = () => {
       return false;
     });
 
-    chrome.tabs
-      .query({
-        url: ["https://*/*", "http://*/*"],
-        active: true,
-        currentWindow: true,
-      })
-      .then(([tab]) => {
-        if (!tab?.id) {
-          window.close();
-          return;
-        }
-
+    getActiveTabInfo()
+      .then(({ id, url, title, favIconUrl: icon }) => {
         chrome.scripting
           .executeScript({
-            target: { tabId: tab.id },
+            target: { tabId: id },
             func: getPageInfo,
           })
           .then((results) => {
@@ -433,7 +415,6 @@ const PageInfoPopup = () => {
           })
           .catch((e) => {
             const message = `${e}`;
-            const { url, title, favIconUrl: icon } = tab;
 
             if (url !== undefined) {
               setPageInfo({ url, title, icon });
@@ -442,7 +423,8 @@ const PageInfoPopup = () => {
               window.close();
             }
           });
-      });
+      })
+      .catch(() => window.close());
   }, [reloadCounter]);
 
   type Panel = {
@@ -596,7 +578,7 @@ const PageInfoPopup = () => {
   const selectedPanel = panels.find(({ id }) => id === selectedPanelID);
 
   const visitCanonicalURL = useCallback(() => {
-    if (canonicalUrl) visitURL(canonicalUrl);
+    if (canonicalUrl) visitURL({ url: canonicalUrl });
     return true;
   }, [canonicalUrl]);
   const nextPanel = useCallback(() => {
