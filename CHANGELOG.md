@@ -1,3 +1,7 @@
+## Unreleased
+
+- Bind "Visit the canonical URL in new tab" to Shift+C.
+
 ## 0.9.6
 
 - Middle click on the Canonical URL button opens it in a background tab.

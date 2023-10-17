@@ -20,6 +20,7 @@ import type { SaveURLMessage } from "./worker.ts";
 
 const ShortcutCommands = [
   "visitCanonicalURL",
+  "visitCanonicalURLInNewTab",
   "prevPanel",
   "nextPanel",
   "copyURL",
@@ -38,6 +39,10 @@ const ShortcutDefinitions: {
   visitCanonicalURL: {
     shortcut: ["C"],
     description: "Visit the canonical URL",
+  },
+  visitCanonicalURLInNewTab: {
+    shortcut: ["Shift+C"],
+    description: "Visit the canonical URL in new tab",
   },
   prevPanel: {
     shortcut: ["Left", "H"],
@@ -587,6 +592,10 @@ const PageInfoPopup = () => {
     if (canonicalUrl) visitURL({ url: canonicalUrl });
     return true;
   }, [canonicalUrl]);
+  const visitCanonicalURLInNewTab = useCallback(() => {
+    if (canonicalUrl) chrome.tabs.create({ url: canonicalUrl, active: false });
+    return true;
+  }, [canonicalUrl]);
   const nextPanel = useCallback(() => {
     const len = panels.length;
     if (len <= 1) return;
@@ -616,6 +625,7 @@ const PageInfoPopup = () => {
     shortcuts.add(
       generateShortcutKeyBindings({
         visitCanonicalURL,
+        visitCanonicalURLInNewTab,
         prevPanel,
         nextPanel,
         help,
