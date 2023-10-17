@@ -15,6 +15,7 @@ export const CopiableButton = ({
   copyHTML,
   shortcutKey,
   onClick,
+  onMouseDown,
   children,
   ...props
 }: {
@@ -27,6 +28,7 @@ export const CopiableButton = ({
   copyHTML?: string | (() => string | null) | null;
   shortcutKey?: string | string[] | null;
   onClick?: React.MouseEventHandler;
+  onMouseDown?: React.MouseEventHandler;
   children: ReactNode;
 } & PopupProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,6 +110,7 @@ export const CopiableButton = ({
           className={className}
           title={title}
           onClick={handleClick}
+          onMouseDown={onMouseDown}
           onMouseEnter={handleHover}
           onMouseLeave={handleClose}
         >

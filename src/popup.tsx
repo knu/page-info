@@ -111,14 +111,20 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
         }
         copiedPopupContent="Copied!"
         clickedPopupContent="Visiting..."
-        onClick={
-          url === pageUrl
-            ? undefined
-            : (e: React.MouseEvent) => {
+        {...(url !== pageUrl
+          ? {
+              onClick: (e: React.MouseEvent) => {
                 e.preventDefault();
                 visitURL({ url: pageUrl });
-              }
-        }
+              },
+              onMouseDown: (e: React.MouseEvent) => {
+                if (e.button === 1) {
+                  e.preventDefault();
+                  chrome.tabs.create({ url: pageUrl, active: false });
+                }
+              },
+            }
+          : {})}
         position="top left"
       >
         {pageUrl}

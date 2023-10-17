@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Middle click on the Canonical URL button opens it in a background tab.
 - Show the extension name and version in the help modal.
 
 ## 0.9.5
