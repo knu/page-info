@@ -26,21 +26,19 @@ const safeAsync = <T, E>(
     promise.then(resolve).catch((e) => resolve(onErrorResolve(e))),
   );
 
-type TabInfo = {
-  id: number;
-  url?: string;
-  title?: string;
-};
+type TabInfo = Required<Pick<chrome.tabs.Tab, "id">> &
+  Omit<chrome.tabs.Tab, "id">;
 
-const getActiveTabInfo = async (): Promise<TabInfo> => {
-  const [{ id = undefined, url = undefined, title = undefined } = {}] =
-    await chrome.tabs.query({
-      url: ["https://*/*", "http://*/*"],
-      active: true,
-      currentWindow: true,
-    });
-  if (!id) throw new Error("null tab id");
-  return { id, url, title };
+const hasTabId = (tab: chrome.tabs.Tab): tab is TabInfo => tab.id !== undefined;
+
+export const getActiveTabInfo = async (): Promise<TabInfo> => {
+  const [tab] = await chrome.tabs.query({
+    url: ["https://*/*", "http://*/*"],
+    active: true,
+    currentWindow: true,
+  });
+  if (!tab || !hasTabId(tab)) throw new Error("failed to get the active tab");
+  return tab;
 };
 
 // Canonical URL detection
