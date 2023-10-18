@@ -18,7 +18,7 @@ name() {
 }
 
 version() {
-    jq -r .version manifest.json
+    jq -r .version package.json
 }
 
 package_file() {
@@ -58,7 +58,7 @@ bump() {
         *)
             code='sub(/^  "version": "\K[^"]+/, &:succ)' ;;
     esac
-    ruby -i -pe "$code" manifest.json package.json
+    ruby -i -pe "$code" package.json
     local version=$(version)
 
     echo "Bumping the version to $version"
@@ -68,12 +68,12 @@ bump() {
         make
         package
     } || {
-        git restore manifest.json package.json
+        git restore package.json
         false
     }
 
     VERSION=$version ruby -i -pe 'sub(/^## \KUnreleased$/, ENV["VERSION"])' CHANGELOG.md
-    git commit -m "Bump the version to $version" manifest.json package.json CHANGELOG.md
+    git commit -m "Bump the version to $version" package.json CHANGELOG.md
     git tag -f "v$version"
 
     echo "Bumped the version to $version"
@@ -88,10 +88,10 @@ unbump() {
             false
     esac
 
-    local version=$(jq -r .version manifest.json)
+    local version=$(version)
     git tag -d "v$version"
     git reset --soft '@^'
-    git restore --staged --worktree manifest.json package.json CHANGELOG.md
+    git restore --staged --worktree package.json CHANGELOG.md
 
     echo "Reverted the version to $(version)"
 }

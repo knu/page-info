@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.9.6",
   "type": "module",
+  "description": "Show the page info and the canonical URL, Copy as Markdown, and more",
+  "homepage": "https://github.com/knu/page-info",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
