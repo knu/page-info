@@ -88,7 +88,7 @@ const fetchTabPageInfo = async (
     if (pageInfo) return pageInfo;
   }
 
-  const { url } = await safeAsync(chrome.tabs.get(tabId), (_e) => ({
+  const { url } = await safeAsync(chrome.tabs.get(tabId), () => ({
     url: undefined,
   }));
   if (!url || !/^https?:\/\//.test(url)) return { url: url ?? "" };
@@ -334,7 +334,6 @@ const handleSaveURLMessage = (
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ): boolean => {
-  const { url, title } = message;
   chrome.storage.sync
     .get({
       saveURLTemplate: null,
@@ -343,23 +342,22 @@ const handleSaveURLMessage = (
     .then(({ saveURLTemplate, saveURLInBackground }) => {
       if (typeof saveURLTemplate !== "string") return;
 
+      const { url, title } = message;
       const saveURL = parseTemplate(saveURLTemplate).expand({ url, title });
-      const width = 450;
-      const height = 600;
 
       chrome.windows
         .create({
           url: saveURL,
           type: "popup",
           focused: !saveURLInBackground,
-          width,
-          height,
+          width: 450,
+          height: 600,
         })
         .then(({ tabs }) => {
           tabs?.forEach(({ id }) => id && saveURLTabs.add(id));
           sendResponse({ ok: true });
         })
-        .catch((e) => sendResponse({ ok: false }));
+        .catch(() => sendResponse({ ok: false }));
     });
 
   return true;

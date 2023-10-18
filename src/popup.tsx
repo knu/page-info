@@ -556,7 +556,7 @@ const PageInfoPopup = () => {
     try {
       const time = Date.parse(str);
       return Number.isNaN(time) ? null : new Date(time);
-    } catch (e) {
+    } catch {
       return null;
     }
   };
