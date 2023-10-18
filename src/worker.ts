@@ -135,32 +135,39 @@ const noncanonicalIcon = {
   "128": iconNoncanonical128Path,
 };
 
-const showCanonicalState = ({ isCanonical, canonicalUrl }: PageInfo) => {
+const showCanonicalState = (pageInfo: PageInfo, tabId: number) => {
+  const { isCanonical, canonicalUrl, url } = pageInfo;
   if (isCanonical) {
-    chrome.action.setIcon({ path: canonicalIcon });
+    chrome.action.setIcon({ tabId, path: canonicalIcon });
     chrome.action.setTitle({
+      tabId,
       title: `${defaultTitle} - This URL is canonical.︎︎`,
     });
   } else if (canonicalUrl) {
-    chrome.action.setIcon({ path: noncanonicalIcon });
+    chrome.action.setIcon({ tabId, path: noncanonicalIcon });
     chrome.action.setTitle({
+      tabId,
       title: `${defaultTitle} - There is a canonical URL for this page︎︎.`,
     });
-  } else {
-    chrome.action.setIcon({ path: normalIcon });
-    chrome.action.setTitle({ title: defaultTitle });
+  } else if (url) {
+    chrome.action.setIcon({ tabId, path: normalIcon });
+    chrome.action.setTitle({ tabId, title: defaultTitle });
   }
 };
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
   if (saveURLTabs.has(tabId)) return;
-  fetchTabPageInfo(tabId).then(showCanonicalState);
+  fetchTabPageInfo(tabId).then((pageInfo) =>
+    showCanonicalState(pageInfo, tabId),
+  );
 });
 
 chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
   if (saveURLTabs.has(tabId)) return;
   if (url) {
-    fetchTabPageInfo(tabId, true).then(showCanonicalState);
+    fetchTabPageInfo(tabId, true).then((pageInfo) =>
+      showCanonicalState(pageInfo, tabId),
+    );
   }
 });
 
@@ -173,7 +180,9 @@ chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
   if (saveURLTabs.has(tabId)) return;
 
-  fetchTabPageInfo(tabId, true).then(showCanonicalState);
+  fetchTabPageInfo(tabId, true).then((pageInfo) =>
+    showCanonicalState(pageInfo, tabId),
+  );
 
   chrome.runtime
     .sendMessage({ action: "updatePopup" })
