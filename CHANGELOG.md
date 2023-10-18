@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.7
 
 - Bind "Visit the canonical URL in new tab" to Shift+C.
 - Make internal improvements and avoid harmless errors.
