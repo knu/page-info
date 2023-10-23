@@ -135,7 +135,7 @@ const noncanonicalIcon = {
   "128": iconNoncanonical128Path,
 };
 
-const showCanonicalState = (pageInfo: PageInfo, tabId: number) => {
+const showTabState = (pageInfo: PageInfo, tabId: number) => {
   const { isCanonical, canonicalUrl, url } = pageInfo;
   if (isCanonical) {
     chrome.action.setIcon({ tabId, path: canonicalIcon });
@@ -155,20 +155,32 @@ const showCanonicalState = (pageInfo: PageInfo, tabId: number) => {
   }
 };
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  if (saveURLTabs.has(tabId)) return;
-  fetchTabPageInfo(tabId).then((pageInfo) =>
-    showCanonicalState(pageInfo, tabId),
+const updateTabState = (tabId: number, force?: boolean): boolean => {
+  if (saveURLTabs.has(tabId)) return false;
+
+  fetchTabPageInfo(tabId, force).then((pageInfo) =>
+    showTabState(pageInfo, tabId),
   );
-});
+  return true;
+};
+
+export type UpdateTabStateMessage = {
+  action: "updateTabState";
+};
+
+const handleUpdateTabStateMessage = (
+  message: UpdateTabStateMessage,
+  { tab }: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+): boolean => {
+  if (tab?.id) updateTabState(tab.id, true);
+  return true;
+};
+
+chrome.tabs.onActivated.addListener(({ tabId }) => updateTabState(tabId));
 
 chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
-  if (saveURLTabs.has(tabId)) return;
-  if (url) {
-    fetchTabPageInfo(tabId, true).then((pageInfo) =>
-      showCanonicalState(pageInfo, tabId),
-    );
-  }
+  if (url) updateTabState(tabId, true);
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
@@ -177,17 +189,14 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 chrome.webNavigation.onCompleted.addListener(({ frameId, tabId }) => {
-  if (frameId !== 0 || tabId == null) return;
-  if (saveURLTabs.has(tabId)) return;
+  if (frameId !== 0) return;
 
-  fetchTabPageInfo(tabId, true).then((pageInfo) =>
-    showCanonicalState(pageInfo, tabId),
-  );
-
-  chrome.runtime
-    .sendMessage({ action: "updatePopup" })
-    .then(() => {})
-    .catch(() => {});
+  if (updateTabState(tabId, true)) {
+    chrome.runtime
+      .sendMessage({ action: "updatePopup" })
+      .then(() => {})
+      .catch(() => {});
+  }
 });
 
 // Context menu
@@ -524,7 +533,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Message listener for the above
 
 type MessageListener = (
-  message: SaveURLMessage,
+  message: UpdateTabStateMessage | SaveURLMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ) => boolean;
@@ -533,6 +542,8 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
   const { action } = message;
 
   switch (action) {
+    case "updateTabState":
+      return handleUpdateTabStateMessage(message, sender, sendResponse);
     case "saveURL":
       return handleSaveURLMessage(message, sender, sendResponse);
   }
