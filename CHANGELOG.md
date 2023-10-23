@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.8
 
 - Always show a popup as long as the active tab has a URL.
 - Detect dynamic changes to the canonical URL of a tab and update the icon face.
