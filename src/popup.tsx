@@ -412,7 +412,7 @@ const PageInfoPopup = () => {
       return false;
     });
 
-    getActiveTabInfo()
+    getActiveTabInfo({ url: "<all_urls>" })
       .then(({ id, url, title, favIconUrl: icon }) => {
         chrome.scripting
           .executeScript({

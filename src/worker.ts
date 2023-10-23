@@ -31,11 +31,12 @@ type TabInfo = Required<Pick<chrome.tabs.Tab, "id">> &
 
 const hasTabId = (tab: chrome.tabs.Tab): tab is TabInfo => tab.id !== undefined;
 
-export const getActiveTabInfo = async (): Promise<TabInfo> => {
+export const getActiveTabInfo = async (query = {}): Promise<TabInfo> => {
   const [tab] = await chrome.tabs.query({
     url: ["https://*/*", "http://*/*"],
     active: true,
     currentWindow: true,
+    ...query,
   });
   if (!tab || !hasTabId(tab)) throw new Error("failed to get the active tab");
   return tab;

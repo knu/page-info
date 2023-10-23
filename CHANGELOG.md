@@ -1,3 +1,7 @@
+## Unreleased
+
+- Always show a popup as long as the active tab has a URL.
+
 ## 0.9.7
 
 - Bind "Visit the canonical URL in new tab" to Shift+C.
