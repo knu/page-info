@@ -1,7 +1,6 @@
 import { getPageInfo } from "./getPageInfo.ts";
 import type { PageInfo } from "./getPageInfo.ts";
 import { parseTemplate } from "url-template";
-import type { Template } from "url-template";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
 import icon16Path from "./images/icon16.png";
