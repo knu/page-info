@@ -42,8 +42,11 @@ changelog() {
 }
 
 release() {
+    set -e
     local version=${1-$(version)}
 
+    git push
+    git push --tags --force
     gh release create "v$version" -t "v$version" -n "$(changelog "$version")" -- "$(package_file "$version")"
 }
 
