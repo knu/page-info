@@ -246,7 +246,7 @@ const OgText = ({
     () => ({
       menuItemId: "link",
       linkUrl: url,
-      selectionText: title,
+      selectionText: title || url,
       editable: false,
       pageUrl: url,
     }),
@@ -275,7 +275,7 @@ const OgText = ({
             title={url}
             className="text-black dark:text-white hover:text-black dark:hover:text-white"
           >
-            {title}
+            {title || "No Title"}
           </span>
         </CopiableButton>
       </h1>
@@ -320,7 +320,7 @@ const SiteSummary = ({
       </div>
     )}
 
-    {url && title ? (
+    {url && title != null ? (
       <OgText {...{ url, title, description, selected }} />
     ) : (
       <div className="px-2 placeholder og-text">

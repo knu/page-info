@@ -1,3 +1,7 @@
+## Unreleased
+
+- Stop showing placeholders when the title is empty.
+
 ## 0.9.8
 
 - Always show a popup as long as the active tab has a URL.
