@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.9
 
 - Stop showing placeholders when the title is empty.
 
