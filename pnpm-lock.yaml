@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@types/react-modal':
-    specifier: ^3.16.1
-    version: 3.16.1
+    specifier: ^3.16.2
+    version: 3.16.2
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -771,8 +771,8 @@ packages:
       '@types/react': 18.2.28
     dev: true
 
-  /@types/react-modal@3.16.1:
-    resolution: {integrity: sha512-HsH2E3luJ2hdVOAovq93x/r+CmWqbhwT8hXW05KMp3zzbSEZsBn4egnMGU/VLwScwlCRPTyZgIEPqLycaz5EOw==}
+  /@types/react-modal@3.16.2:
+    resolution: {integrity: sha512-4LIHFLP8EmQnps3QhUIPyfF87b1BGikQD/MHuYNdx/30gH1d4Q3OUtyqrh6GUfifNVMPWXOrlRekJDWzPzu1Gg==}
     dependencies:
       '@types/react': 18.2.28
     dev: false
