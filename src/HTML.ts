@@ -13,13 +13,13 @@ const escapeAttribute = (key: string, value: string) =>
 
 const elementHTML = (
   tagName: string,
-  attributes: Record<string, string | undefined>,
+  attributes: Record<string, string | null | undefined>,
   innerHTML?: string,
 ) => {
   const t = [
     tagName,
-    ...Object.entries(attributes).map(([key, value]) =>
-      value === undefined ? [] : escapeAttribute(key, value),
+    ...Object.entries(attributes).flatMap(([key, value]) =>
+      value == null ? [] : escapeAttribute(key, value),
     ),
   ].join(" ");
 
