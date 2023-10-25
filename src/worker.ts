@@ -290,35 +290,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Migration
-  chrome.storage.sync
-    .get({
-      shareIcon: undefined,
-      shareURLTemplate: undefined,
-      shareURLInBackground: undefined,
-    })
-    .then(({ shareIcon, shareURLTemplate, shareURLInBackground }) => {
-      if (
-        shareIcon !== undefined ||
-        shareURLTemplate !== undefined ||
-        shareURLInBackground !== undefined
-      ) {
-        chrome.storage.sync
-          .set({
-            saveURLIcon: shareIcon,
-            saveURLTemplate: shareURLTemplate,
-            saveURLInBackground: shareURLInBackground,
-          })
-          .then(() => {
-            chrome.storage.sync.remove([
-              "shareIcon",
-              "shareURLTemplate",
-              "shareURLInBackground",
-            ]);
-          });
-      }
-    });
-
   const items: chrome.contextMenus.CreateProperties[] = [
     {
       id: "current-page",
