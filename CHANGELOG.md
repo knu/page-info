@@ -1,4 +1,4 @@
-## Unreleased
+## 1.0.0
 
 - Use alt/title attribute values in Markdown/HTML snippets generated via the context menu.
 - Relax URL constraints and enable content scripts everywhere so that the context menu items work in iframe without src.
