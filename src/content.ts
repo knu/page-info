@@ -25,6 +25,57 @@ const handleCopyToClipboardMessage: MessageHandler = (
 };
 
 //
+// Provide information about the element on which the context menu is opened
+//
+
+export type ContextAttributes = {
+  linkText?: string | null;
+  linkTitle?: string | null;
+  imageTitle?: string | null;
+  imageAlt?: string | null;
+};
+
+document.addEventListener("contextmenu", (event: MouseEvent) => {
+  const data: ContextAttributes = {};
+
+  const target = event.target as HTMLElement;
+  const result = document.evaluate(
+    "ancestor-or-self::a[@href] | ancestor-or-self::img[@title or @alt]",
+    target,
+    null,
+    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    null,
+  );
+
+  for (let i = result.snapshotLength - 1; i >= 0; i--) {
+    const element = result.snapshotItem(i) as HTMLElement;
+    switch (element.localName) {
+      case "img":
+        Object.assign(data, {
+          imageTitle: element.getAttribute("title"),
+          imageAlt: element.getAttribute("alt"),
+        });
+        break;
+      case "a":
+        Object.assign(data, {
+          linkText:
+            document.evaluate(
+              "normalize-space(.)",
+              element,
+              null,
+              XPathResult.STRING_TYPE,
+              null,
+            ).stringValue || "",
+          linkTitle: element.getAttribute("title"),
+        });
+        break;
+    }
+  }
+
+  chrome.runtime.sendMessage({ action: "updateContextAttributes", data });
+});
+
+//
 // Observe any possible change in the page info
 //
 

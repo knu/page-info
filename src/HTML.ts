@@ -28,21 +28,44 @@ const elementHTML = (
     : `<${t}>${innerHTML}</${tagName}>`;
 };
 
-const linkedText = ({ text, href }: { text: string; href: string }) =>
-  elementHTML("a", { href }, escapeText(text));
+const linkedText = ({
+  text,
+  href,
+  title,
+}: {
+  text: string;
+  href: string;
+  title?: string | null;
+}) => elementHTML("a", { href, title }, escapeText(text));
 
-const image = ({ alt = "", src }: { alt?: string; src: string }) =>
-  elementHTML("img", { alt, src });
+const image = ({
+  src,
+  alt,
+  title,
+}: {
+  src: string;
+  alt?: string | null;
+  title?: string | null;
+}) => elementHTML("img", { alt, src, title });
 
 const linkedImage = ({
-  alt,
   src,
   href,
+  alt,
+  title,
+  linkTitle,
 }: {
-  alt?: string;
   src: string;
   href: string;
-}) => elementHTML("a", { href }, elementHTML("img", { alt, src }));
+  alt?: string | null;
+  title?: string | null;
+  linkTitle?: string | null;
+}) =>
+  elementHTML(
+    "a",
+    { href, title: linkTitle },
+    elementHTML("img", { alt, src, title }),
+  );
 
 export const HTML = {
   linkedText,
@@ -50,11 +73,13 @@ export const HTML = {
   linkedImage,
 };
 
+import type { ContextAttributes } from "./content";
+
 export const getHTMLForContext: (
-  info: chrome.contextMenus.OnClickData,
+  info: chrome.contextMenus.OnClickData & ContextAttributes,
   tab?: chrome.tabs.Tab,
 ) => string | null = (
-  { menuItemId, linkUrl, mediaType, srcUrl, selectionText },
+  { menuItemId, linkUrl, mediaType, srcUrl, linkText, linkTitle },
   tab,
 ) => {
   switch (menuItemId) {
@@ -66,15 +91,12 @@ export const getHTMLForContext: (
     case "link":
       if (!linkUrl) return null;
 
-      switch (mediaType) {
-        case "image":
-          // An image element as a clipboard item is not really useful
-          return null;
-      }
+      // Ignore mediaType; an image element as a clipboard item is not really useful
 
       return linkedText({
-        text: selectionText ?? "Link",
+        text: linkText || "Link",
         href: linkUrl,
+        title: linkTitle,
       });
 
     case "image":

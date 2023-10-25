@@ -17,21 +17,59 @@ const escapeHref = (href: string) => {
     : href.replace(/[()]+/g, (paren) => encodeURIComponent(paren));
 };
 
-const linkedText = ({ text, href }: { text: string; href: string }) =>
-  `[${escapeLinkText(text)}](${escapeHref(href)})`;
+const escapeTitle = (title: string) => {
+  if (/[\\\'\"()\n]/.test(title)) {
+    const escaped = title
+      .replace(/([\\\"])/g, "\\$1")
+      .replace(/\n([ \f\r\t\v]*\n)+/g, "\n");
 
-const image = ({ alt = "", src }: { alt?: string; src: string }) =>
-  `![${escapeLinkText(alt)}](${escapeHref(src)})`;
+    return `"${escaped}"`;
+  } else {
+    return title;
+  }
+};
+
+const linkedText = ({
+  text,
+  href,
+  title,
+}: {
+  text: string;
+  href: string;
+  title?: string | null;
+}) =>
+  title
+    ? `[${escapeLinkText(text)}](${escapeHref(href)} ${escapeTitle(title)})`
+    : `[${escapeLinkText(text)}](${escapeHref(href)})`;
+
+const image = ({
+  src,
+  alt,
+  title,
+}: {
+  src: string;
+  alt?: string | null;
+  title?: string | null;
+}) => `!${linkedText({ text: alt ?? "", href: src, title })}`;
 
 const linkedImage = ({
-  alt,
   src,
   href,
+  alt,
+  title,
+  linkTitle,
 }: {
-  alt?: string;
   src: string;
   href: string;
-}) => `[${image({ alt, src })}](${escapeHref(href)})`;
+  alt?: string | null;
+  title?: string | null;
+  linkTitle?: string | null;
+}) =>
+  linkTitle
+    ? `[${image({ alt, src, title })}](${escapeHref(href)} ${escapeTitle(
+        linkTitle,
+      )})`
+    : `[${image({ alt, src, title })}](${escapeHref(href)})`;
 
 export const Markdown = {
   linkedText,
@@ -39,11 +77,22 @@ export const Markdown = {
   linkedImage,
 };
 
+import type { ContextAttributes } from "./content";
+
 export const getMarkdownForContext: (
-  info: chrome.contextMenus.OnClickData,
+  info: chrome.contextMenus.OnClickData & ContextAttributes,
   tab?: chrome.tabs.Tab,
 ) => string | null = (
-  { menuItemId, linkUrl, mediaType, srcUrl, selectionText },
+  {
+    menuItemId,
+    linkUrl,
+    mediaType,
+    srcUrl,
+    imageAlt,
+    imageTitle,
+    linkText,
+    linkTitle,
+  },
   tab,
 ) => {
   switch (menuItemId) {
@@ -61,17 +110,23 @@ export const getMarkdownForContext: (
             ? linkedImage({
                 src: srcUrl,
                 href: linkUrl,
+                alt: imageAlt,
+                title: imageTitle,
+                linkTitle,
               })
             : null;
       }
 
       return linkedText({
-        text: selectionText ?? "Link",
+        text: linkText ?? "Link",
         href: linkUrl,
+        title: linkTitle,
       });
 
     case "image":
-      return srcUrl ? image({ alt: selectionText, src: srcUrl }) : null;
+      return srcUrl
+        ? image({ alt: imageAlt, src: srcUrl, title: imageTitle })
+        : null;
   }
 
   throw new TypeError(`unknown context menu ID: ${menuItemId}`);

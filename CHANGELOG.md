@@ -1,3 +1,7 @@
+## Unreleased
+
+- Use alt/title attribute values in Markdown/HTML snippets generated via the context menu.
+
 ## 0.9.9
 
 - Stop showing placeholders when the title is empty.

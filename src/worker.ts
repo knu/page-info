@@ -16,6 +16,7 @@ import iconNoncanonical32Path from "./images/icon_noncanonical32.png";
 import iconNoncanonical48Path from "./images/icon_noncanonical48.png";
 import iconNoncanonical128Path from "./images/icon_noncanonical128.png";
 import { writeViaNavigator } from "./clipboard.ts";
+import { ContextAttributes } from "./content.ts";
 
 const safeAsync = <T, E>(
   promise: Promise<T>,
@@ -235,6 +236,25 @@ chrome.alarms.onAlarm.addListener(({ name }) => {
   }
 });
 
+export type UpdateContextAttributesMessage = {
+  action: "updateContextAttributes";
+  data: ContextAttributes;
+};
+
+const contextAttributes: ContextAttributes = {};
+
+const handleUpdateContextAttributesMessage = (
+  { data }: UpdateContextAttributesMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void,
+): void => {
+  Object.assign(
+    contextAttributes,
+    { linkText: null, linkTitle: null, imageTitle: null, imageAlt: null },
+    data,
+  );
+};
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   const tabId = tab?.id;
   if (!tabId) return;
@@ -253,9 +273,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         .catch(() => showFailureBadge());
     }
   } else {
-    const text = getMarkdownForContext(info, tab);
+    const contextInfo = { ...info, ...contextAttributes };
+    const text = getMarkdownForContext(contextInfo, tab);
     if (!text) return;
-    const html = getHTMLForContext(info, tab);
+    const html = getHTMLForContext(contextInfo, tab);
 
     chrome.scripting
       .executeScript({
@@ -533,10 +554,13 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Message listener for the above
 
 type MessageListener = (
-  message: UpdateTabStateMessage | SaveURLMessage,
+  message:
+    | UpdateTabStateMessage
+    | UpdateContextAttributesMessage
+    | SaveURLMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
-) => boolean;
+) => boolean | void;
 
 const messageListener: MessageListener = (message, sender, sendResponse) => {
   const { action } = message;
@@ -544,6 +568,12 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
   switch (action) {
     case "updateTabState":
       return handleUpdateTabStateMessage(message, sender, sendResponse);
+    case "updateContextAttributes":
+      return handleUpdateContextAttributesMessage(
+        message,
+        sender,
+        sendResponse,
+      );
     case "saveURL":
       return handleSaveURLMessage(message, sender, sendResponse);
   }
