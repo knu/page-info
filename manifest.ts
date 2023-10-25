@@ -23,7 +23,9 @@ export default {
   },
   content_scripts: [
     {
-      matches: ["https://*/*", "http://*/*"],
+      matches: ["<all_urls>"],
+      all_frames: true,
+      match_origin_as_fallback: true,
       js: ["src/content.ts"],
       run_at: "document_start",
     },

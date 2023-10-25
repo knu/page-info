@@ -337,16 +337,7 @@ chrome.runtime.onInstalled.addListener(() => {
     },
   ];
 
-  items.forEach((item) =>
-    chrome.contextMenus.create({
-      documentUrlPatterns: [
-        "http://*/*",
-        "https://*/*",
-        `chrome-extension://${chrome.runtime.id}/*`,
-      ],
-      ...item,
-    }),
-  );
+  items.forEach((item) => chrome.contextMenus.create(item));
 });
 
 // Background URL saving
