@@ -38,7 +38,7 @@ package() {
 
 changelog() {
     local version=${1-$(version)}
-    ruby -e 'v,=ARGV;puts File.read("CHANGELOG.md").scan(/^## (.+)\n((?~^(?=##)))/).to_h[v].strip' "$version"
+    ruby -e 'v,=ARGV;puts File.read("CHANGELOG.md").scan(/^## (\S+)(?: - \S+)?\n((?~^(?=##)))/).to_h[v].strip' "$version"
 }
 
 release() {
@@ -75,7 +75,7 @@ bump() {
         false
     }
 
-    VERSION=$version ruby -i -pe 'sub(/^## \KUnreleased$/, ENV["VERSION"])' CHANGELOG.md
+    VERSION=$version ruby -i -pe 'sub(/^## \KUnreleased$/, "#{ENV["VERSION"]} - #{Time.now.strftime("%F")}")' CHANGELOG.md
     git commit -m "Bump the version to $version" package.json CHANGELOG.md
     git tag -f "v$version"
 
