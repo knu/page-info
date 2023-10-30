@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.0.1 - 2023-10-30
 
 - Fix the link title always being "Link" when copied other than from the context menu.
 
