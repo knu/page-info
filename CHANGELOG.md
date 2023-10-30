@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Fix the link title always being "Link" when copied other than from the context menu.
+
 ## 1.0.0 - 2023-10-26
 
 - Use alt/title attribute values in Markdown/HTML snippets generated via the context menu.

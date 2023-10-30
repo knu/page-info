@@ -246,7 +246,7 @@ const OgText = ({
     () => ({
       menuItemId: "link",
       linkUrl: url,
-      selectionText: title || url,
+      linkText: title || url,
       editable: false,
       pageUrl: url,
     }),

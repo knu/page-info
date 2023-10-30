@@ -573,10 +573,10 @@ const commandCopyMarkdownLink = () => {
         return;
       }
 
-      const info: chrome.contextMenus.OnClickData = {
+      const info: chrome.contextMenus.OnClickData & ContextAttributes = {
         menuItemId: "link",
         linkUrl: url,
-        selectionText: title,
+        linkText: title,
         editable: false,
         pageUrl: url,
       };
