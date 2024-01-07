@@ -421,6 +421,7 @@ const PageInfoPopup = () => {
           })
           .then((results) => {
             for (const { result } of results) {
+              if (result.title == "") result.title = title;
               setPageInfo(result);
             }
           })

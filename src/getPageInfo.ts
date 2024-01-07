@@ -135,7 +135,7 @@ export const getPageInfo: () => PageInfo = () => {
     canonicalUrl,
     isCanonical,
     icon: iconURL,
-    title: document.title,
+    title: document.title || "",
     description: getElementAttribute("meta[name='description']", "content"),
     publishedTime: getElementAttribute(
       "meta[property='article:published_time']",
