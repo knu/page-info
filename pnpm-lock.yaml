@@ -32,8 +32,8 @@ dependencies:
 
 devDependencies:
   '@crxjs/vite-plugin':
-    specifier: 2.0.0-beta.19
-    version: 2.0.0-beta.19
+    specifier: 2.0.0-beta.22
+    version: 2.0.0-beta.22
   '@types/chrome':
     specifier: ^0.0.248
     version: 0.0.248
@@ -323,8 +323,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@crxjs/vite-plugin@2.0.0-beta.19:
-    resolution: {integrity: sha512-MHJgSwRktpb436ANPoR67cosjCZ6cpq472h4ImAs8POVw8NxZyNMTX4ayoRgTzmCNy2Xve3oOYt/pm+GO9+XfQ==}
+  /@crxjs/vite-plugin@2.0.0-beta.22:
+    resolution: {integrity: sha512-YFK1icyLOctDAF4K/rLausZAKbpA8as3F/d2pveEBXgnsYf62LtMdbxmL/vjcS6cL2IOCmEg0t3cuqupU+N2ng==}
     dependencies:
       '@rollup/pluginutils': 4.2.1
       '@webcomponents/custom-elements': 1.6.0
