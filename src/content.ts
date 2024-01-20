@@ -107,7 +107,7 @@ const elementObserver = new MutationObserver((mutations) => {
           break;
         case "link":
           attributesObserver.observe(node, { attributes: true });
-          updated ||= node.getAttribute("rel") === "canonical" ?? false;
+          updated ||= node.getAttribute("rel") === "canonical";
           break;
       }
     });
