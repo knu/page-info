@@ -22,7 +22,7 @@
     "url-template": "^3.1.0"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "2.0.0-beta.22",
+    "@crxjs/vite-plugin": "2.0.0-beta.23",
     "@types/chrome": "^0.0.256",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
