@@ -100,8 +100,11 @@ const fetchTabPageInfo = async (
       func: getPageInfo,
     });
 
-    TabPageInfo.set(tabId, pageInfo);
-    return pageInfo;
+    if (pageInfo !== undefined) {
+      TabPageInfo.set(tabId, pageInfo);
+      return pageInfo;
+    }
+    throw new Error("failed to get page information");
   } catch (e) {
     if (!/cannot be scripted|was removed/.test(`${e}`)) {
       console.error(e);

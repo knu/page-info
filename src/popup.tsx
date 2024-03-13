@@ -419,11 +419,12 @@ const PageInfoPopup = () => {
             target: { tabId: id },
             func: getPageInfo,
           })
-          .then((results) => {
-            for (const { result } of results) {
-              if (result.title == "") result.title = title;
-              setPageInfo(result);
+          .then(([{ result: pageInfo }]) => {
+            if (pageInfo !== undefined) {
+              if (pageInfo.title == "") pageInfo.title = title;
+              setPageInfo(pageInfo);
             }
+            throw new Error("failed to get page information");
           })
           .catch((e) => {
             const message = `${e}`;
