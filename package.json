@@ -24,8 +24,8 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.23",
     "@types/chrome": "^0.0.263",
-    "@types/react": "^18.2.59",
-    "@types/react-dom": "^18.2.19",
+    "@types/react": "^18.2.65",
+    "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "@vitejs/plugin-react": "^4.2.1",
