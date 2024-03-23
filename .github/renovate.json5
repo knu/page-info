@@ -11,13 +11,11 @@
       groupName: "patch updates",
       matchDatasources: ["npm"],
       matchUpdateTypes: ["patch", "digest"],
-      rangeStrategy: "bump",
     },
     {
       groupName: "minor updates",
       matchDatasources: ["npm"],
       matchUpdateTypes: ["minor"],
-      rangeStrategy: "bump",
     },
     {
       matchDatasources: ["npm"],
