@@ -20,7 +20,7 @@ import { ContextAttributes } from "./content.ts";
 
 const safeAsync = <T, E>(
   promise: Promise<T>,
-  onErrorResolve: (e: any) => E,
+  onErrorResolve: (e: unknown) => E,
 ): Promise<T | E> =>
   new Promise<T | E>((resolve, _reject) =>
     promise.then(resolve).catch((e) => resolve(onErrorResolve(e))),
@@ -173,9 +173,9 @@ export type UpdateTabStateMessage = {
 };
 
 const handleUpdateTabStateMessage = (
-  message: UpdateTabStateMessage,
+  _message: UpdateTabStateMessage,
   { tab }: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
+  _sendResponse: (response?: object) => void,
 ): boolean => {
   if (tab?.id) updateTabState(tab.id, true);
   return true;
@@ -183,7 +183,7 @@ const handleUpdateTabStateMessage = (
 
 chrome.tabs.onActivated.addListener(({ tabId }) => updateTabState(tabId));
 
-chrome.tabs.onUpdated.addListener((tabId, { url }, tab) => {
+chrome.tabs.onUpdated.addListener((tabId, { url }, _tab) => {
   if (url) updateTabState(tabId, true);
 });
 
@@ -248,8 +248,8 @@ const contextAttributes: ContextAttributes = {};
 
 const handleUpdateContextAttributesMessage = (
   { data }: UpdateContextAttributesMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
+  _sender: chrome.runtime.MessageSender,
+  _sendResponse: (response?: object) => void,
 ): void => {
   Object.assign(
     contextAttributes,
@@ -326,8 +326,8 @@ const saveURLTabs = new Set<number>();
 
 const handleSaveURLMessage = (
   message: SaveURLMessage,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
+  _sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: object) => void,
 ): boolean => {
   chrome.storage.sync
     .get({
@@ -524,7 +524,7 @@ type MessageListener = (
     | UpdateContextAttributesMessage
     | SaveURLMessage,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
+  sendResponse: (response?: object) => void,
 ) => boolean | void;
 
 const messageListener: MessageListener = (message, sender, sendResponse) => {
@@ -541,9 +541,9 @@ const messageListener: MessageListener = (message, sender, sendResponse) => {
       );
     case "saveURL":
       return handleSaveURLMessage(message, sender, sendResponse);
+    default:
+      return false;
   }
-
-  return false;
 };
 
 chrome.runtime.onMessage.addListener(messageListener);

@@ -157,7 +157,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
         setTimer(setTimeout(() => setPopupContent(undefined), timeout));
       }
     },
-    [],
+    [timer],
   );
 
   useEffect(() => {
@@ -171,7 +171,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
         setSaveURLTemplate(saveURLTemplate);
       },
     );
-  }, []);
+  }, [saveURLIcon, saveURLTemplate]);
 
   const handleHover = useCallback(() => {
     popup(
@@ -180,7 +180,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
         <blockquote className="mx-2 break-all">{url}</blockquote>
       </div>,
     );
-  }, [url]);
+  }, [popup, url]);
 
   const doSaveURL = useCallback(() => {
     const message: SaveURLMessage = {
@@ -547,7 +547,7 @@ const PageInfoPopup = () => {
     }
 
     setPanels(panels);
-  }, [pageInfo]);
+  }, [pageInfo, pageError]);
 
   const { url, canonicalUrl, isCanonical, publishedTime, modifiedTime } =
     pageInfo ?? {};
@@ -637,7 +637,13 @@ const PageInfoPopup = () => {
     shortcuts.start();
 
     return () => shortcuts.stop();
-  }, [visitCanonicalURL, prevPanel, nextPanel, isHelpOpen]);
+  }, [
+    visitCanonicalURL,
+    visitCanonicalURLInNewTab,
+    prevPanel,
+    nextPanel,
+    isHelpOpen,
+  ]);
 
   if (!selectedPanel) return null;
 

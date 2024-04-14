@@ -78,10 +78,7 @@ import type { ContextAttributes } from "./content";
 export const getHTMLForContext: (
   info: chrome.contextMenus.OnClickData & ContextAttributes,
   tab?: chrome.tabs.Tab,
-) => string | null = (
-  { menuItemId, linkUrl, mediaType, srcUrl, linkText, linkTitle },
-  tab,
-) => {
+) => string | null = ({ menuItemId, linkUrl, linkText, linkTitle }, tab) => {
   switch (menuItemId) {
     case "current-page":
       if (!tab?.url) return null;

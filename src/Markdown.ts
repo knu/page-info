@@ -1,12 +1,12 @@
 const escapeLinkText = (text: string) =>
-  text.replace(/([\\\[\]*_`~\n])/g, "\\$1");
+  text.replace(/([\\[\]*_`~\n])/g, "\\$1");
 
 const escapeHref = (href: string) => {
   const parentheses = href.replace(/[^()]+/g, "");
   if (parentheses.length === 0) return href;
 
   let unbalanced = parentheses;
-  while (true) {
+  for (;;) {
     const next = unbalanced.replace(/\(\)/g, "");
     if (next === unbalanced) break;
     unbalanced = next;
@@ -18,9 +18,9 @@ const escapeHref = (href: string) => {
 };
 
 const escapeTitle = (title: string) => {
-  if (/[\\\'\"()\n]/.test(title)) {
+  if (/[\\'"()\n]/.test(title)) {
     const escaped = title
-      .replace(/([\\\"])/g, "\\$1")
+      .replace(/([\\"])/g, "\\$1")
       .replace(/\n([ \f\r\t\v]*\n)+/g, "\n");
 
     return `"${escaped}"`;
