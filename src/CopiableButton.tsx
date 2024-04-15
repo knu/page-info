@@ -64,7 +64,7 @@ export const CopiableButton = ({
         }, 750),
       );
     });
-  }, [copyText, timer]);
+  }, [copyText, copyHTML, timer]);
 
   useEffect(() => {
     const shortcutKeys =
@@ -121,8 +121,8 @@ export const CopiableButton = ({
         isCopied
           ? copiedPopupContent
           : isClicked
-          ? clickedPopupContent
-          : hoverPopupContent
+            ? clickedPopupContent
+            : hoverPopupContent
       }
       on={[]}
       open={isOpen}

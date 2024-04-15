@@ -27,16 +27,18 @@ export type PageInfo = {
 };
 
 export const getPageInfo: () => PageInfo = () => {
-  const compareValues = (a: any, b: any) => (a < b ? 1 : a > b ? -1 : 0);
-  const compareArrays = (a: any[], b: any[]) => {
+  const compareValues = <T>(a: T, b: T) => (a < b ? 1 : a > b ? -1 : 0);
+  const compareArrays = <T extends object[]>(a: T, b: T) => {
     for (const [i, ai] of a.entries()) {
       const cmp = compareValues(ai, b[i]);
       if (cmp) return cmp;
     }
     return 0;
   };
-  const compare = (a: any, b: any) =>
-    Array.isArray(a) ? compareArrays(a, b) : compareValues(a, b);
+  const compare = <T>(a: T, b: T) =>
+    Array.isArray(a) && Array.isArray(b)
+      ? compareArrays(a, b)
+      : compareValues(a, b);
   const objectPresence = <T extends Record<string, unknown>>(
     object: T,
   ): T | undefined =>
@@ -45,13 +47,16 @@ export const getPageInfo: () => PageInfo = () => {
   const getElementAttribute = (
     selector: string,
     attribute: string,
-    maxBy?: (element: Element) => any,
+    maxBy?: (element: Element) => object,
   ) => {
     const aSelector = `${selector}[${attribute}]`;
 
     const value = maxBy
       ? Array.from(document.querySelectorAll(aSelector))
-          .map((element) => [maxBy(element), element.getAttribute(attribute)])
+          .map((element): [object, string | null] => [
+            maxBy(element),
+            element.getAttribute(attribute),
+          ])
           .sort(([a], [b]) => compare(a, b))[0]?.[1]
       : document.querySelector(aSelector)?.getAttribute(attribute);
 
@@ -74,7 +79,7 @@ export const getPageInfo: () => PageInfo = () => {
   const iconSortKey = (elem: Element) => {
     const rel = elem.getAttribute("rel");
     switch (rel) {
-      case "icon":
+      case "icon": {
         const size =
           elem
             .getAttribute("sizes")
@@ -85,6 +90,7 @@ export const getPageInfo: () => PageInfo = () => {
             .pop() ?? 0;
 
         return [3, size];
+      }
       case "shortcut icon":
         return [2, 0];
       case "apple-touch-icon":

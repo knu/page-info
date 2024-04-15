@@ -1,7 +1,7 @@
 type MessageHandler = (
-  message: any,
+  message: object,
   sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void,
+  sendResponse: (response?: object) => void,
 ) => boolean | void;
 
 //
@@ -12,7 +12,7 @@ import { writeViaCommand } from "./clipboard.ts";
 
 const handleCopyToClipboardMessage: MessageHandler = (
   message,
-  sender,
+  _sender,
   sendResponse,
 ) => {
   // Use the legacy API because use of the chrome.navigator API
@@ -97,7 +97,7 @@ const attributesObserver = new MutationObserver((mutations) => {
 const elementObserver = new MutationObserver((mutations) => {
   let updated = false;
 
-  mutations.forEach(({ target, addedNodes, removedNodes }) => {
+  mutations.forEach(({ addedNodes, removedNodes }) => {
     addedNodes.forEach((node) => {
       if (!(node instanceof HTMLElement)) return;
 
