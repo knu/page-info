@@ -423,8 +423,9 @@ const PageInfoPopup = () => {
             if (pageInfo !== undefined) {
               if (pageInfo.title == "") pageInfo.title = title;
               setPageInfo(pageInfo);
+            } else {
+              throw new Error("failed to get page information");
             }
-            throw new Error("failed to get page information");
           })
           .catch((e) => {
             const message = `${e}`;
