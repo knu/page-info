@@ -24,7 +24,7 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.23",
     "@types/chrome": "^0.0.266",
-    "@types/react": "^18.2.78",
+    "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
@@ -37,6 +37,6 @@
     "postcss-nesting": "^12.1.1",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
-    "vite": "^5.2.8"
+    "vite": "^5.2.9"
   }
 }
