@@ -1,7 +1,7 @@
 {
   "name": "page-info",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "Show the page info and the canonical URL, Copy as Markdown, and more",
   "homepage": "https://github.com/knu/page-info",

@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.3 - 2024-07-22
+
+- Update library versions
+
 ## 1.0.2 - 2024-01-13
 
 - Fall back to the tab title when the document is not accessible nor have a title such as when it is a PDF document.
