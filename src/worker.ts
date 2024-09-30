@@ -371,7 +371,7 @@ const getSaveURLPageScript = (url: string): (() => Promise<string>) | null => {
             if (
               document.title?.match(/\bsaved\b/i) &&
               Array.from(document.querySelectorAll("[role='button']")).some(
-                (e) => e.textContent === "Remove",
+                (e) => e.textContent === "Delete",
               )
             ) {
               clearInterval(timer);
