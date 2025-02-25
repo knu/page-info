@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@types/react-modal": "^3.16.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-modal": "^3.16.3",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.5",
@@ -24,8 +24,8 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.31",
     "@types/chrome": "^0.0.306",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitejs/plugin-react": "^4.3.4",
