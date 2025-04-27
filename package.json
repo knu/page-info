@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.32",
-    "@types/chrome": "^0.0.310",
+    "@types/chrome": "^0.0.317",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
@@ -32,11 +32,11 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-react-refresh": "^0.4.20",
     "postcss": "^8.5.3",
     "postcss-nesting": "^13.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^6.2.2"
   }
 }
