@@ -68,7 +68,7 @@ export const getPageInfo: () => PageInfo = () => {
 
     try {
       return new URL(url).toString();
-    } catch (e) {
+    } catch {
       return null;
     }
   };

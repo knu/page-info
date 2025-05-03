@@ -1,4 +1,3 @@
-import { defineManifest } from "@crxjs/vite-plugin";
 import { version, description, homepage } from "./package.json";
 
 export default {
