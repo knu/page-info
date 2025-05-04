@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
 import Modal from "react-modal";
-import "semantic-ui-css/semantic.min.css";
+import "fomantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import Shortcuts from "shortcuts";
 import type {

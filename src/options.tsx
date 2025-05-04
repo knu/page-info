@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import "semantic-ui-css/semantic.min.css";
+import "fomantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import { getSaveURLPageScript } from "./worker.ts";
 
