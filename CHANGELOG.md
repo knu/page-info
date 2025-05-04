@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.5 - 2025-05-04
+
+- Update library versions; ESLint to v9, React to v19, and Semantic-UI-React to v3 beta.
+
 ## 1.0.4 - 2024-09-30
 
 - Update background saving for Raindrop.
