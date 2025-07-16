@@ -348,8 +348,8 @@ const handleSaveURLMessage = (
           width: 450,
           height: 600,
         })
-        .then(({ tabs }) => {
-          tabs?.forEach(({ id }) => id && saveURLTabs.add(id));
+        .then((window) => {
+          window?.tabs?.forEach(({ id }) => id && saveURLTabs.add(id));
           sendResponse({ ok: true });
         })
         .catch(() => sendResponse({ ok: false }));
