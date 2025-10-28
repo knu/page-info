@@ -210,7 +210,7 @@ const showBadge = ({
   color = [0x7f, 0, 0, 0xff],
 }: {
   text: string;
-  color?: string | chrome.action.ColorArray;
+  color?: string | chrome.extensionTypes.ColorArray;
 }) => {
   chrome.action.setBadgeBackgroundColor({ color });
   chrome.action.setBadgeText({ text });
