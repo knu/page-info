@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "fomantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
+import type { SyncStorageItems } from "./types.ts";
 import { getSaveURLPageScript } from "./worker.ts";
 
 const SaveURLPresets = [
@@ -67,7 +68,7 @@ const PageInfoOptions = () => {
       "dark:bg-gray-800",
     );
 
-    chrome.storage.sync.get(
+    chrome.storage.sync.get<SyncStorageItems>(
       {
         saveURLIcon: null,
         saveURLTemplate: null,

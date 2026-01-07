@@ -15,6 +15,7 @@ import type { PageInfo } from "./getPageInfo.ts";
 import { CopiableButton } from "./CopiableButton.tsx";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
+import type { SyncStorageItems } from "./types.ts";
 import { getActiveTabInfo, visitURL } from "./worker.ts";
 import type { SaveURLMessage } from "./worker.ts";
 
@@ -161,7 +162,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
   );
 
   useEffect(() => {
-    chrome.storage.sync.get(
+    chrome.storage.sync.get<SyncStorageItems>(
       {
         saveURLIcon: null,
         saveURLTemplate: null,

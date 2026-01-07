@@ -3,6 +3,7 @@ import type { PageInfo } from "./getPageInfo.ts";
 import { parseTemplate } from "url-template";
 import { getMarkdownForContext } from "./Markdown.ts";
 import { getHTMLForContext } from "./HTML.ts";
+import type { SyncStorageItems } from "./types.ts";
 import icon16Path from "./images/icon16.png";
 import icon32Path from "./images/icon32.png";
 import icon48Path from "./images/icon48.png";
@@ -477,7 +478,7 @@ chrome.webNavigation.onCompleted.addListener(async ({ frameId, tabId }) => {
   if (frameId !== 0 || tabId == null) return;
   if (!saveURLTabs.has(tabId)) return;
 
-  const { saveURLInBackground } = await chrome.storage.sync.get({
+  const { saveURLInBackground } = await chrome.storage.sync.get<SyncStorageItems>({
     saveURLInBackground: false,
   });
   if (!saveURLInBackground) return;
