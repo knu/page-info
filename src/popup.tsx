@@ -497,7 +497,7 @@ const PageInfoPopup = () => {
     if (twitter !== undefined) {
       panels.push({
         id: "twitter",
-        name: "Twitter",
+        name: "X",
         url: canonicalUrl ?? url,
         title: twitter?.title ?? og?.title ?? title,
         render: ({ url, title, selected }) => (
