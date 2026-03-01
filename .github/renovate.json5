@@ -17,6 +17,10 @@
       rangeStrategy: "bump",
     },
   ],
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: ["after 9am and before 1pm on Sunday"],
+  },
   vulnerabilityAlerts: {
     enabled: true,
     addLabels: ["security"],
