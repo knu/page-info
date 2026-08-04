@@ -153,7 +153,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
       setPopupContent(content);
       clearTimeout(timer);
       if (timeout !== undefined) {
-        setTimer(setTimeout(() => setPopupContent(undefined), timeout));
+        setTimer(window.setTimeout(() => setPopupContent(undefined), timeout));
       }
     },
     [timer],

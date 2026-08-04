@@ -58,7 +58,7 @@ export const CopiableButton = ({
       setIsCopied(true);
       clearTimeout(timer);
       setTimer(
-        setTimeout(() => {
+        window.setTimeout(() => {
           setIsOpen(false);
           setIsCopied(false);
         }, 750),
@@ -92,7 +92,7 @@ export const CopiableButton = ({
             setIsClicked(true);
             clearTimeout(timer);
             setTimer(
-              setTimeout(() => {
+              window.setTimeout(() => {
                 setIsOpen(false);
                 setIsClicked(false);
               }, 750),
