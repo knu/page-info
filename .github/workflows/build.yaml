@@ -45,6 +45,9 @@ jobs:
         with:
           eslint_flags: "src/"
 
+      - name: Test
+        run: pnpm test
+
       - name: Build
         run: |
           pnpm build
