@@ -12,9 +12,10 @@ const escapeHref = (href: string) => {
     unbalanced = next;
   }
 
+  // encodeURIComponent() leaves parentheses intact, so encode them by hand
   return unbalanced.length === 0
     ? href
-    : href.replace(/[()]+/g, (paren) => encodeURIComponent(paren));
+    : href.replace(/[()]/g, (paren) => (paren === "(" ? "%28" : "%29"));
 };
 
 const escapeTitle = (title: string) => {
