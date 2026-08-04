@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import "fomantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import type { SyncStorageItems } from "./types.ts";
 import { getSaveURLPageScript } from "./worker.ts";
@@ -187,7 +186,7 @@ const PageInfoOptions = () => {
                   name="saveURLInBackground"
                   checked={saveURLInBackground}
                   onChange={handleChangeSaveURLInBackground}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
                   htmlFor="saveURLInBackground"
@@ -202,7 +201,7 @@ const PageInfoOptions = () => {
           <fieldset>
             <button
               onClick={handleSave}
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-hidden"
             >
               Save
             </button>

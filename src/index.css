@@ -1,6 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Layer order reproduces the Tailwind v3 cascade: Fomantic UI overrides
+ * Preflight (base) but loses to utility classes.
+ */
+@layer theme, base, fomantic, components, utilities;
+@import "tailwindcss";
+@import "fomantic-ui-css/semantic.min.css" layer(fomantic);
+
+/* Apply hover styles on any device, as in Tailwind v3 */
+@custom-variant hover (&:hover);
+
+/*
+ * Chrome injects an unlayered `body { font-family: ...; font-size: 75% }`
+ * rule into extension pages.  Now that Fomantic UI lives in a cascade
+ * layer, that injected rule would win, so re-assert Fomantic's body font
+ * here, unlayered.
+ */
+body {
+  font-family:
+    Lato, system-ui, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  font-size: 14px;
+}
+
+@layer base {
+  /* Preserve Tailwind v3 Preflight behavior */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}
 
 #container {
   width: 400px;

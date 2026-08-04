@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
 import Modal from "react-modal";
-import "fomantic-ui-css/semantic.min.css";
 import { Popup } from "semantic-ui-react";
 import Shortcuts from "shortcuts";
 import type {
@@ -99,7 +98,7 @@ const URLButton = ({ url, canonicalUrl, isCanonical }: PageInfo) => {
   ) : null;
 
   return (
-    <div className="fixed z-40 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded max-w-[98%] whitespace-nowrap overflow-hidden truncate">
+    <div className="fixed z-40 bottom-1 left-1 p-0.5 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-sm max-w-[98%] whitespace-nowrap overflow-hidden truncate">
       {canonicalUrl && "Canonical "}
       {"URL: "}
       {emoji}
@@ -212,7 +211,7 @@ const SaveURLButton = ({ url, title }: SaveURLProps) => {
     <Popup
       trigger={
         <button
-          className="fixed z-40 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded"
+          className="fixed z-40 top-1 right-1 p-1 border-2 border-gray-200 dark:border-gray-700 rounded-sm"
           title="Save the URL online"
           onMouseEnter={handleHover}
           onMouseLeave={() => popup()}
@@ -348,28 +347,28 @@ const InactiveTabClasses =
 
 const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
   pageError ? (
-    <div className="mt-2 p-4 rounded bg-amber-100 dark:text-gray-600 flex-middle error">
+    <div className="mt-2 p-4 rounded-sm bg-amber-100 dark:text-gray-600 flex-middle error">
       <p className="space-y-2">
         The page information cannot be inspected because of the following error:
       </p>
       <p className="space-y-2 mx-4 text-red-600">{pageError}</p>
     </div>
   ) : !image ? (
-    <div className="mt-2 rounded bg-light flex-middle no-og-image">
+    <div className="mt-2 rounded-sm bg-light flex-middle no-og-image">
       No Image
     </div>
   ) : (
     <ImageLoader
       src={image}
       alt={alt ?? undefined}
-      className="mt-2 rounded bg-light flex-middle og-image"
+      className="mt-2 rounded-sm bg-light flex-middle og-image"
       errorAttributes={{
         alt: "Image Not Found",
         title: "Image Not Found",
-        className: "mt-2 rounded bg-light flex-middle og-image error",
+        className: "mt-2 rounded-sm bg-light flex-middle og-image error",
       }}
       placeholderContent={
-        <div className="mt-2 rounded bg-light flex-middle og-image placeholder" />
+        <div className="mt-2 rounded-sm bg-light flex-middle og-image placeholder" />
       }
     />
   );
@@ -659,7 +658,7 @@ const PageInfoPopup = () => {
       <Modal
         isOpen={isHelpOpen}
         onRequestClose={() => setIsHelpOpen(false)}
-        className="help-modal absolute z-50 top-8 bottom-8 left-4 right-4 p-4 rounded outline-none text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-700"
+        className="help-modal absolute z-50 top-8 bottom-8 left-4 right-4 p-4 rounded-sm outline-hidden text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-700"
         overlayClassName="help-modal-overlay fixed z-50 top-0 bottom-0 left-0 right-0 bg-[rgba(0,0,0,0.4)]"
         contentLabel="Help"
       >
