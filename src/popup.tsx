@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import ReactDOM from "react-dom/client";
 import type { ReactNode } from "react";
 import Modal from "react-modal";
 import { Popup } from "semantic-ui-react";
@@ -373,7 +372,7 @@ const SiteImage = ({ image, alt, pageError }: SiteImageProps) =>
     />
   );
 
-const PageInfoPopup = () => {
+export const PageInfoPopup = () => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [reloadCounter, setReloadCounter] = useState(0);
   const [pageInfo, setPageInfo] = useState<PageInfo | undefined>();
@@ -774,9 +773,3 @@ const PageInfoPopup = () => {
     </div>
   );
 };
-
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <PageInfoPopup />
-  </React.StrictMode>,
-);

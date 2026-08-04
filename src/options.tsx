@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom/client";
 import { Popup } from "semantic-ui-react";
 import type { SyncStorageItems } from "./types.ts";
 import { getSaveURLPageScript } from "./worker.ts";
@@ -19,7 +18,7 @@ const SaveURLPresets = [
   ],
 ];
 
-const PageInfoOptions = () => {
+export const PageInfoOptions = () => {
   const [saveURLIcon, setSaveURLIcon] = useState<string | null>(null);
   const [saveURLTemplate, setSaveURLTemplate] = useState<string | null>(null);
   const [saveURLInBackground, setSaveURLInBackground] = useState<
@@ -211,9 +210,3 @@ const PageInfoOptions = () => {
     </div>
   );
 };
-
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <PageInfoOptions />
-  </React.StrictMode>,
-);

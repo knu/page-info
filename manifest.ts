@@ -1,6 +1,7 @@
+import { defineManifest } from "@crxjs/vite-plugin";
 import { version, description, homepage } from "./package.json";
 
-export default {
+export default defineManifest((env) => ({
   name: "Page Info",
   description,
   version,
@@ -55,6 +56,19 @@ export default {
       },
     },
   },
+  // In dev mode, chrome.action.setIcon() loads icons straight from dist,
+  // where only manifest-referenced files exist.  Listing the icons here
+  // makes CRXJS copy them.  Production resolves them as hashed assets.
+  ...(env.mode === "development"
+    ? {
+        web_accessible_resources: [
+          {
+            matches: ["<all_urls>"],
+            resources: ["src/images/*.png"],
+          },
+        ],
+      }
+    : {}),
   permissions: [
     "activeTab",
     "scripting",
@@ -65,4 +79,4 @@ export default {
     "storage",
   ],
   host_permissions: ["<all_urls>"],
-};
+}));
