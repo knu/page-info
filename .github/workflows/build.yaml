@@ -56,7 +56,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           cd dist
-          zip -r ../page-info-${GITHUB_REF_NAME}.zip .
+          zip -r "../page-info-${GITHUB_REF_NAME}.zip" . -x '.vite/*'
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')

@@ -29,11 +29,10 @@ package_file() {
 package() {
     set -e
     local version=${1-$(version)}
-    local name="$(name)" zip="$(package_file "$version")"
-    rm -rf "$zip"
-    rsync -a --delete dist/ "$name"/
-    zip -r "$zip" "$name"
-    rm -rf "$name"
+    local zip="$(package_file "$version")"
+    rm -f "$zip"
+    # Chrome Web Store expects manifest.json at the zip root
+    (cd dist && zip -r "../$zip" . -x '.vite/*')
 }
 
 changelog() {
