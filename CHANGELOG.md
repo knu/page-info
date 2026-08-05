@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.7 - 2026-08-06
+
+- Fix broken Markdown links for URLs containing unbalanced parentheses.
+- Update library versions; Tailwind CSS to v4 and TypeScript to v7.
+
 ## 1.0.6 - 2026-01-10
 
 - Rename the "Twitter" tab to "X".
