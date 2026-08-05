@@ -64,4 +64,6 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: page-info-${{ github.ref_name }}.zip
-          generate_release_notes: true
+          # Release notes come from CHANGELOG.md via `make release`;
+          # generating notes here would append to them
+          generate_release_notes: false
