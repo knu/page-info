@@ -47,7 +47,8 @@ release() {
 
     git push
     git push --tags --force
-    gh release create "v$version" -t "v$version" -n "$(changelog "$version")" -- "$(package_file "$version")"
+    # The zip asset is built and attached by the tag-triggered CI workflow
+    gh release create "v$version" -t "v$version" -n "$(changelog "$version")"
 }
 
 bump() {
