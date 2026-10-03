@@ -37,8 +37,7 @@ jobs:
           run_install: false
           version: "12.7.0"
 
-      - uses: knu/lockfile-maintenance-action@v1 # zizmor: ignore[unpinned-uses] -- Follow the tested v1 release series.
+      - uses: knu/lockfile-maintenance-action@b25f71652280135d0af3ed9abee56849942c5624 # v2.0.0
         with:
-          auth: oidc
           files: /pnpm-lock.yaml
           minimum-release-age: 3 days
