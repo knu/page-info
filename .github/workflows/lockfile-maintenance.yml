@@ -35,7 +35,7 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           run_install: false
-          version: "12.7.0"
+          version: "12.8.2"
 
       - uses: knu/lockfile-maintenance-action@88c9463c4ac32a3b5d1a0ef2ce1caedab9bd80c3 # v2.1.0
         with:
