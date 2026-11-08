@@ -11,7 +11,6 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
         - 'pnpm/action-setup@v6.1.0'
-        - 'reviewdog/action-eslint@v1.36.1'
         - 'step-security/harden-runner@v2.22.3'
     '.github/workflows/lockfile-maintenance.yml':
         - 'actions/checkout@v7.0.1'
@@ -85,11 +84,6 @@ dependencies:
         commit: 'sha1-ea17c68df8912ef543352723c149a84f56e3d413'
         owner_id: 21320719
         repo_id: 262289747
-    'reviewdog/action-eslint@v1.36.1':
-        ref: 'v1.36.1'
-        commit: 'sha1-3ee2a450da17e060b9dfa4bffd53976906c6b2b0'
-        owner_id: 48765237
-        repo_id: 210385198
     'ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec':
         ref: 'v1.334.0'
         commit: 'sha1-26e5b7d197ebf60545ee9667bcbace0be11ccaec'
