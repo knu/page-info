@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@v2.22.2
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
 
@@ -35,7 +35,7 @@ jobs:
       - uses: pnpm/action-setup@v6.1.0
         with:
           run_install: false
-          version: "12.15.0"
+          version: "12.17.0"
 
       - uses: knu/lockfile-maintenance-action@v2
         with:
