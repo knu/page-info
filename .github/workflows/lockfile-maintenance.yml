@@ -32,10 +32,10 @@ jobs:
           node-version: "26"
           package-manager-cache: false
 
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
         with:
           run_install: false
-          version: "12.17.0"
+          version: "12.18.0"
 
       - uses: knu/lockfile-maintenance-action@v2
         with:
